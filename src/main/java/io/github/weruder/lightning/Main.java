@@ -52,11 +52,21 @@ public final class Main extends JavaPlugin implements Listener
 			}
 		}
 	}
+	@SuppressWarnings("deprecation")
+	@EventHandler
+	public void onPlayerInteractBlock(PlayerInteractEvent event) {
+	    Player player = event.getPlayer();
+	    if (player.getItemInHand().getType() == Material.FISHING_ROD) {
+	        // Creates a bolt of lightning at a given location. In this case, that location is where the player is looking.
+	        // Can only create lightning up to 200 blocks away.
+	        player.getWorld().strikeLightning(player.getTargetBlock(null, 200).getLocation());
+	    }
+	}
 	@EventHandler
 	public void onPlayerInteract(PlayerInteractEvent event) {
-	if (event.getAction() == Action.RIGHT_CLICK_BLOCK) {
-	event.getPlayer().sendMessage(ChatColor.AQUA + "You clicked a " + ChatColor.BOLD + event.getClickedBlock().getType().toString().toLowerCase().replace("_", ""));
-	}
+		if (event.getAction() == Action.RIGHT_CLICK_BLOCK) {
+			event.getPlayer().sendMessage(ChatColor.AQUA + "You clicked a " + ChatColor.BOLD + event.getClickedBlock().getType().toString().toLowerCase().replace("_", ""));
+		}
 	}
 }
 
