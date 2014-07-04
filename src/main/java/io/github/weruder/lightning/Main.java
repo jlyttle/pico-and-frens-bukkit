@@ -5,6 +5,7 @@ import org.bukkit.entity.Fireball;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
+import org.bukkit.event.Listener;
 import org.bukkit.event.block.Action;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.plugin.java.JavaPlugin;
@@ -28,15 +29,5 @@ public final class Main extends JavaPlugin implements Listener{
 		}
 	}
 
-	@Override
-	public void onEnable() {
-		getLogger().info("onEnable has been invoked!");
-		PluginManager pm = this.getServer().getPluginManager();
-		pm.registerListeners(this, this);
-	}
- 
-	@Override
-	public void onDisable() {
-		getLogger().info("onDisable has been invoked!");
-	}
+
 }
