@@ -10,7 +10,7 @@ import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.util.Vector;
 
-public final class Main extends JavaPlugin {
+public final class Main extends JavaPlugin implements Listener{
 
 	@EventHandler
 	(priority=EventPriority.HIGH) 
@@ -31,6 +31,8 @@ public final class Main extends JavaPlugin {
 	@Override
 	public void onEnable() {
 		getLogger().info("onEnable has been invoked!");
+		PluginManager pm = this.getServer().getPluginManager();
+		pm.registerListeners(this, this);
 	}
  
 	@Override
