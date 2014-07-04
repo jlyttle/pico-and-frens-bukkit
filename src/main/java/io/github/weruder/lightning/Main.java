@@ -2,6 +2,7 @@ package io.github.weruder.lightning;
 
 import java.util.logging.Level;
 
+import org.bukkit.ChatColor;
 import org.bukkit.Material;
 import org.bukkit.entity.Fireball;
 import org.bukkit.entity.Player;
@@ -51,4 +52,13 @@ public final class Main extends JavaPlugin implements Listener
 			}
 		}
 	}
+	@EventHandler
+	public void onPlayerInteract(PlayerInteractEvent event) {
+	if (event.getAction() == Action.RIGHT_CLICK_BLOCK) {
+	event.getPlayer().sendMessage(ChatColor.AQUA + "You clicked a " + ChatColor.BOLD + event.getClickedBlock().getType().toString().toLowerCase().replace("_", ""));
+	}
+	}
 }
+
+
+
