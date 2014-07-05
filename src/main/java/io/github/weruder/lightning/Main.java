@@ -2,8 +2,10 @@ package io.github.weruder.lightning;
 
 import java.util.logging.Level;
 
+import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Material;
+import org.bukkit.entity.Entity;
 import org.bukkit.entity.Fireball;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
@@ -13,6 +15,8 @@ import org.bukkit.event.block.Action;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.event.player.PlayerLoginEvent;
 import org.bukkit.plugin.java.JavaPlugin;
+import org.bukkit.potion.PotionEffect;
+import org.bukkit.potion.PotionEffectType;
 import org.bukkit.util.Vector;
 
 public final class Main extends JavaPlugin implements Listener 
@@ -39,16 +43,29 @@ public final class Main extends JavaPlugin implements Listener
 	public void onPlayerUse(PlayerInteractEvent event)
 	{
 		getLogger().info("Player has used an item!");
-		Player p = event.getPlayer();
+		final Player player = event.getPlayer();
+		if(player.getItemInHand().getType() == Material.LEATHER && ((Entity)player).isOnGround())
+		{
+			Vector current_velocity = player.getVelocity();
+			player.setVelocity(current_velocity.add(new Vector(0, 1, 0)));
+			Bukkit.getServer().getScheduler().scheduleSyncDelayedTask(this, new Runnable(){
+				public void run(){
+					Vector current_velocity = player.getVelocity();
+					Vector recoil_velocity = player.getLocation().getDirection().multiply(new Vector(1, 0, 1));
+					player.setVelocity(current_velocity.add(recoil_velocity));
+				}
+			}, 10);
+		}
+		
 		if(event.getAction().equals(Action.RIGHT_CLICK_AIR))
 		{
 		getLogger().info("Air has been right-clicked!");
-			if(p.getItemInHand().getType() == Material.STICK)
+			if(player.getItemInHand().getType() == Material.STICK)
 			{
 				getLogger().info("BLASTIN'!");
-				Fireball fire = p.getWorld().spawn(event.getPlayer().getLocation().add(new Vector(0.0D, 1.0D, 0.0D)), Fireball.class); 
+				Fireball fire = player.getWorld().spawn(event.getPlayer().getLocation().add(new Vector(0.0D, 1.0D, 0.0D)), Fireball.class); 
 				fire.setFireTicks(0); 
-				fire.setShooter(p); 
+				fire.setShooter(player); 
 			}
 		}
 	}
