@@ -42,27 +42,32 @@ public final class Main extends JavaPlugin implements Listener
 	(priority=EventPriority.HIGH) 
 	public void onPlayerUse(PlayerInteractEvent event)
 	{
-		getLogger().info("Player has used an item!");
+		//Grab the player object from the event. The final keyword lets us use it inside of scheduleSyncDelayedTask
 		final Player player = event.getPlayer();
+		//Check if we have leather in our hand, and if we're on the ground. The player's isOnGround method is deprecated,
+		//so we typecast it as an Entity to get access to the method.
 		if(player.getItemInHand().getType() == Material.LEATHER && ((Entity)player).isOnGround())
 		{
 			Vector current_velocity = player.getVelocity();
+			//We set the player's velocity to their current velocity plus a vector of 1 in the y direction.
+			//This will send the player in the same direction they were going, but up into the air as well
 			player.setVelocity(current_velocity.add(new Vector(0, 1, 0)));
+			//Ask the server to run this code in 10 ticks
 			Bukkit.getServer().getScheduler().scheduleSyncDelayedTask(this, new Runnable(){
 				public void run(){
 					Vector current_velocity = player.getVelocity();
+					//Take the direction the player is looking in, and multiply the Y component by 0
+					//so that the player will only glide in the x and z axes, not get a super jump upwards
 					Vector recoil_velocity = player.getLocation().getDirection().multiply(new Vector(1, 0, 1));
 					player.setVelocity(current_velocity.add(recoil_velocity));
 				}
-			}, 10);
+			}, 10); //Change this number if you want to make the wait time longer or shorter
 		}
 		
 		if(event.getAction().equals(Action.RIGHT_CLICK_AIR))
 		{
-		getLogger().info("Air has been right-clicked!");
 			if(player.getItemInHand().getType() == Material.STICK)
 			{
-				getLogger().info("BLASTIN'!");
 				Fireball fire = player.getWorld().spawn(event.getPlayer().getLocation().add(new Vector(0.0D, 1.0D, 0.0D)), Fireball.class); 
 				fire.setFireTicks(0); 
 				fire.setShooter(player); 
@@ -81,9 +86,9 @@ public final class Main extends JavaPlugin implements Listener
 	}
 	@EventHandler
 	public void onPlayerInteract(PlayerInteractEvent event) {
-		if (event.getAction() == Action.RIGHT_CLICK_BLOCK) {
+		/*if (event.getAction() == Action.RIGHT_CLICK_BLOCK) {
 			event.getPlayer().sendMessage(ChatColor.AQUA + "You clicked a " + ChatColor.BOLD + event.getClickedBlock().getType().toString().toLowerCase().replace("_", ""));
-		}
+		}*/
 	}
 }
 
