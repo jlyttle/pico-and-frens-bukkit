@@ -4,7 +4,9 @@ import java.util.logging.Level;
 
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
+import org.bukkit.Location;
 import org.bukkit.Material;
+import org.bukkit.block.Block;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.Fireball;
 import org.bukkit.entity.Player;
@@ -14,6 +16,7 @@ import org.bukkit.event.Listener;
 import org.bukkit.event.block.Action;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.event.player.PlayerLoginEvent;
+import org.bukkit.event.player.PlayerMoveEvent;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
@@ -37,6 +40,20 @@ public final class Main extends JavaPlugin implements Listener
 	    //We're going to write out to the console that the player has logged in.
  	    getLogger().log(Level.INFO, "Player " + event.getPlayer().getName() + " is logging in!");
  	}
+	
+	@EventHandler
+	public void onPlayerMove(PlayerMoveEvent event)
+	{
+		final Player player = event.getPlayer();
+		if (player.getEquipment().getBoots().getType() == Material.GOLD_BOOTS)
+		{
+			final Material standingOn = player.getLocation().add(0,-1,0).getBlock().getType();
+			if(standingOn != Material.AIR && standingOn != Material.POWERED_RAIL && standingOn != Material.WATER && standingOn != Material.LAVA)
+			{
+				player.getLocation().getBlock().setType(Material.POWERED_RAIL);
+			}
+		}
+	}
 	
 	@EventHandler
 	(priority=EventPriority.HIGH) 
@@ -63,7 +80,7 @@ public final class Main extends JavaPlugin implements Listener
 				}
 			}, 10); //Change this number if you want to make the wait time longer or shorter
 		}
-		
+		/*
 		if(event.getAction().equals(Action.RIGHT_CLICK_AIR))
 		{
 			if(player.getItemInHand().getType() == Material.STICK)
@@ -72,8 +89,9 @@ public final class Main extends JavaPlugin implements Listener
 				fire.setFireTicks(0); 
 				fire.setShooter(player); 
 			}
-		}
+		}*/
 	}
+	/*
 	@SuppressWarnings("deprecation")
 	@EventHandler
 	public void onPlayerInteractBlock(PlayerInteractEvent event) {
@@ -86,10 +104,10 @@ public final class Main extends JavaPlugin implements Listener
 	}
 	@EventHandler
 	public void onPlayerInteract(PlayerInteractEvent event) {
-		/*if (event.getAction() == Action.RIGHT_CLICK_BLOCK) {
+		if (event.getAction() == Action.RIGHT_CLICK_BLOCK) {
 			event.getPlayer().sendMessage(ChatColor.AQUA + "You clicked a " + ChatColor.BOLD + event.getClickedBlock().getType().toString().toLowerCase().replace("_", ""));
-		}*/
-	}
+		}
+	}*/
 }
 
 
