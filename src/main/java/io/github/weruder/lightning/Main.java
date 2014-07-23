@@ -45,12 +45,15 @@ public final class Main extends JavaPlugin implements Listener
 	public void onPlayerMove(PlayerMoveEvent event)
 	{
 		final Player player = event.getPlayer();
-		if (player.getEquipment().getBoots().getType() == Material.GOLD_BOOTS)
+		if (player.getEquipment().getBoots() != null)
 		{
-			final Material standingOn = player.getLocation().add(0,-1,0).getBlock().getType();
-			if(standingOn != Material.AIR && standingOn != Material.POWERED_RAIL && standingOn != Material.WATER && standingOn != Material.LAVA)
+			if (player.getEquipment().getBoots().getType() == Material.GOLD_BOOTS)
 			{
-				player.getLocation().getBlock().setType(Material.POWERED_RAIL);
+				final Material standingOn = player.getLocation().add(0,-1,0).getBlock().getType();
+				if(standingOn != Material.AIR && standingOn != Material.POWERED_RAIL && standingOn != Material.WATER && standingOn != Material.LAVA)
+				{
+					player.getLocation().getBlock().setType(Material.POWERED_RAIL);
+				}
 			}
 		}
 	}
