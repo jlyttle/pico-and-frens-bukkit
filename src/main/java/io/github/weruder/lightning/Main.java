@@ -6,6 +6,7 @@ import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.DyeColor;
 import org.bukkit.Effect;
+import org.bukkit.GameMode;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.Sound;
@@ -98,15 +99,20 @@ public final class Main extends JavaPlugin implements Listener
 
 				player.setAllowFlight(true);
 				player.setFlying(true);
-				player.setVelocity(distanceToBlock.add(new Vector(0,0.05,0)));
-				world.playSound(playerLoc, Sound.ENDERMAN_HIT, 6F, 1F);
+				distanceToBlock.add(new Vector(0,0.075,0));
+				player.setVelocity(distanceToBlock);
+				world.playSound(playerLoc, Sound.ENDERMAN_HIT, 2F, 0.5F);
 				
 				Bukkit.getServer().getScheduler().scheduleSyncDelayedTask(this, new Runnable(){
 					public void run(){
 						player.setVelocity(distanceToBlock);
-						world.playSound(player.getLocation(), Sound.ENDERMAN_HIT, 6F, 1F);
+						player.setFallDistance(0f);
+						world.playSound(player.getLocation(), Sound.ENDERMAN_HIT, 2F, 0.5F);
 						player.setFlying(false);
-						player.setAllowFlight(false);
+						if(player.getGameMode() == GameMode.SURVIVAL)
+						{
+							player.setAllowFlight(false);
+						}
 					}
 				}, 10);
 			}
