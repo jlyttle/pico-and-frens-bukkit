@@ -4,8 +4,12 @@ import java.util.logging.Level;
 
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
+import org.bukkit.DyeColor;
+import org.bukkit.Effect;
 import org.bukkit.Location;
 import org.bukkit.Material;
+import org.bukkit.Sound;
+import org.bukkit.World;
 import org.bukkit.block.Block;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.Fireball;
@@ -17,6 +21,9 @@ import org.bukkit.event.block.Action;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.event.player.PlayerLoginEvent;
 import org.bukkit.event.player.PlayerMoveEvent;
+import org.bukkit.inventory.ItemStack;
+import org.bukkit.material.Dye;
+import org.bukkit.material.MaterialData;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
@@ -58,12 +65,52 @@ public final class Main extends JavaPlugin implements Listener
 		}
 	}
 	
+	@SuppressWarnings("deprecation")
 	@EventHandler
 	(priority=EventPriority.HIGH) 
 	public void onPlayerUse(PlayerInteractEvent event)
 	{
 		//Grab the player object from the event. The final keyword lets us use it inside of scheduleSyncDelayedTask
 		final Player player = event.getPlayer();
+		final World world = player.getWorld();
+		Block magnet = player.getTargetBlock(null, 200);
+		ItemStack heldItem = player.getItemInHand();
+		final MaterialData redDye = new MaterialData(Material.INK_SACK, (byte)1);
+		final MaterialData blueDye = new MaterialData(Material.INK_SACK, (byte)4);
+		if(heldItem.getType() == Material.INK_SACK)
+		{
+			if (event.getAction().equals(Action.LEFT_CLICK_AIR) || event.getAction().equals(Action.LEFT_CLICK_BLOCK))
+			{
+				//event.getPlayer().sendMessage(ChatColor.GREEN + player.getItemInHand().getData().getData() + " " + redDye.getData());
+				if (player.getItemInHand().getData().getData() == (byte)1)
+					player.setItemInHand(new ItemStack(Material.INK_SACK, 1, (short)4));
+				else if (player.getItemInHand().getData().getData() == (byte)4)
+					player.setItemInHand(new ItemStack(Material.INK_SACK, 1, (short)1));
+			}
+			else if (magnet.getType() == Material.IRON_BLOCK)
+			{
+				Location playerLoc = player.getLocation();
+				Location magnetLoc = magnet.getLocation();
+				final Vector distanceToBlock = playerLoc.getDirection();
+				if (player.getItemInHand().getData().getData() == (byte)4)
+					distanceToBlock.multiply(-1);
+				//event.getPlayer().sendMessage(ChatColor.AQUA + distanceToBlock.toString());
+
+				player.setAllowFlight(true);
+				player.setFlying(true);
+				player.setVelocity(distanceToBlock.add(new Vector(0,0.05,0)));
+				world.playSound(playerLoc, Sound.ENDERMAN_HIT, 6F, 1F);
+				
+				Bukkit.getServer().getScheduler().scheduleSyncDelayedTask(this, new Runnable(){
+					public void run(){
+						player.setVelocity(distanceToBlock);
+						world.playSound(player.getLocation(), Sound.ENDERMAN_HIT, 6F, 1F);
+						player.setFlying(false);
+						player.setAllowFlight(false);
+					}
+				}, 10);
+			}
+		}
 		//Check if we have leather in our hand, and if we're on the ground. The player's isOnGround method is deprecated,
 		//so we typecast it as an Entity to get access to the method.
 		if(player.getItemInHand().getType() == Material.LEATHER && ((Entity)player).isOnGround())
