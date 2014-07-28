@@ -1,5 +1,7 @@
 package io.github.weruder.lightning;
 
+import java.util.HashMap;
+import java.util.Map;
 import java.util.logging.Level;
 
 import org.bukkit.Bukkit;
@@ -12,6 +14,7 @@ import org.bukkit.Material;
 import org.bukkit.Sound;
 import org.bukkit.World;
 import org.bukkit.block.Block;
+import org.bukkit.block.BlockFace;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.Fireball;
 import org.bukkit.entity.Player;
@@ -30,6 +33,8 @@ import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
 import org.bukkit.util.Vector;
 
+import io.github.weruder.lightning.BlockUtil;
+
 public final class Main extends JavaPlugin implements Listener 
 {
 	//Define these dye colors up here so that we can use a nice name instead of a magic number
@@ -37,8 +42,10 @@ public final class Main extends JavaPlugin implements Listener
 	public final byte RED_DYE = (byte)1;
 	public final byte BLUE_DYE = (byte)4;
 	public final byte CYAN_DYE = (byte)6;
+	public final byte ORANGE_DYE = (byte)14;
 	
 	public final byte CHISELED_STONE = (byte)3;
+	public Map<String, Location> CaneBlocks = new HashMap<>(); 
 	
 	@Override
 	//Whenever we enable the plugin for the first time, this method will be called
@@ -160,6 +167,36 @@ public final class Main extends JavaPlugin implements Listener
 					Location newPlayerLoc = new Location(world, blockLoc.getX(), blockLoc.getY() + 1, blockLoc.getZ(), playerLoc.getYaw() + 180f, playerLoc.getPitch());
 					player.teleport(newPlayerLoc);
 					playerLoc.getWorld().spawnFallingBlock(playerLoc.add(0, 1, 0), blockMaterial, blockType);
+				}
+			}
+			
+			/**
+			 *     CANE OF SOMARIA
+			 */
+			if (heldDyeColor == ORANGE_DYE && (event.getAction().equals(Action.RIGHT_CLICK_AIR)||event.getAction().equals(Action.RIGHT_CLICK_BLOCK)))
+			{
+				Location playerLoc = player.getLocation();
+				Location blockLoc = targetBlock.getLocation();
+				if (CaneBlocks.containsKey(player.getName()))
+				{
+					world.playSound(playerLoc, Sound.ENDERMAN_IDLE, 3F, 1F);
+					Location oldLoc = CaneBlocks.get(player.getName());
+					oldLoc.getBlock().setType(Material.AIR);
+					if(oldLoc != blockLoc)
+					{
+						CaneBlocks.put(player.getName(), blockLoc);
+						targetBlock.setType(Material.SMOOTH_BRICK);
+						targetBlock.setData(CHISELED_STONE);
+					}
+				}
+				else
+				{
+					world.playSound(playerLoc, Sound.ENDERMAN_IDLE, 3F, 1F);
+					Block newBlock = blockLoc.add(0, 1, 0).getBlock();
+					CaneBlocks.put(player.getName(), newBlock.getLocation());
+					newBlock.setType(Material.SMOOTH_BRICK);
+					newBlock.setData(CHISELED_STONE);
+					
 				}
 			}
 		}
