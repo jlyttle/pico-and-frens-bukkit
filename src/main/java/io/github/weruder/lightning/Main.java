@@ -32,7 +32,14 @@ import org.bukkit.util.Vector;
 
 public final class Main extends JavaPlugin implements Listener 
 {
-
+	//Define these dye colors up here so that we can use a nice name instead of a magic number
+	//This is a good practice for code readability.
+	public final byte RED_DYE = (byte)1;
+	public final byte BLUE_DYE = (byte)4;
+	public final byte CYAN_DYE = (byte)6;
+	
+	public final byte CHISELED_STONE = (byte)3;
+	
 	@Override
 	//Whenever we enable the plugin for the first time, this method will be called
  	public void onEnable() 
@@ -74,52 +81,95 @@ public final class Main extends JavaPlugin implements Listener
 		//Grab the player object from the event. The final keyword lets us use it inside of scheduleSyncDelayedTask
 		final Player player = event.getPlayer();
 		final World world = player.getWorld();
-		Block magnet = player.getTargetBlock(null, 200);
 		ItemStack heldItem = player.getItemInHand();
-		final MaterialData redDye = new MaterialData(Material.INK_SACK, (byte)1);
-		final MaterialData blueDye = new MaterialData(Material.INK_SACK, (byte)4);
+		Block targetBlock = player.getTargetBlock(null, 200);
+		
 		if(heldItem.getType() == Material.INK_SACK)
 		{
-			if (event.getAction().equals(Action.LEFT_CLICK_AIR) || event.getAction().equals(Action.LEFT_CLICK_BLOCK))
+			//Cut down on repeated calls to getData().getData(), just store the number for later.
+			byte heldDyeColor = heldItem.getData().getData();
+			
+			/**
+			 *     MAGNET GLOVES
+			 */
+			if (heldDyeColor == RED_DYE || heldDyeColor == BLUE_DYE)
 			{
-				//event.getPlayer().sendMessage(ChatColor.GREEN + player.getItemInHand().getData().getData() + " " + redDye.getData());
-				if (player.getItemInHand().getData().getData() == (byte)1)
-					player.setItemInHand(new ItemStack(Material.INK_SACK, 1, (short)4));
-				else if (player.getItemInHand().getData().getData() == (byte)4)
-					player.setItemInHand(new ItemStack(Material.INK_SACK, 1, (short)1));
+				//If we left click anything, we want to change the glove color
+				if (event.getAction().equals(Action.LEFT_CLICK_AIR) || event.getAction().equals(Action.LEFT_CLICK_BLOCK))
+				{
+					if (heldDyeColor == RED_DYE)
+						player.setItemInHand(new ItemStack(Material.INK_SACK, 1, BLUE_DYE));
+					else if (heldDyeColor == BLUE_DYE)
+						player.setItemInHand(new ItemStack(Material.INK_SACK, 1, RED_DYE));
+				}
+				//Otherwise, we're doing a right click, and want to be pulled or pushed
+				else if (targetBlock.getType() == Material.IRON_BLOCK)
+				{
+					Location playerLoc = player.getLocation();
+					final Vector distanceToBlock = playerLoc.getDirection();
+					//If we're using the South glove, reverse the polarity
+					if (heldDyeColor == BLUE_DYE)
+						distanceToBlock.multiply(-1);
+					//To prevent the player from falling due to gravity, we enable flying on them temporarily
+					player.setAllowFlight(true);
+					player.setFlying(true);
+					//We also add a little bit of Y velocity to counteract gravity as well
+					distanceToBlock.add(new Vector(0,0.075,0));
+					//By setting the velocity instead of adding to it, we can ensure the player won't be affected by
+					//their current velocity when they use the gloves.
+					player.setVelocity(distanceToBlock);
+					//This plays our Magnet sound effect. Remove this line to mute the sound.
+					world.playSound(playerLoc, Sound.ENDERMAN_HIT, 3F, 1F);
+					
+					//In 10 ticks, run this code
+					Bukkit.getServer().getScheduler().scheduleSyncDelayedTask(this, new Runnable(){
+						public void run(){
+							player.setVelocity(distanceToBlock);
+							//Reset the player's fall distance so they don't die
+							player.setFallDistance(0f);
+							world.playSound(player.getLocation(), Sound.ENDERMAN_HIT, 3F, 1F);
+							player.setFlying(false);
+							//If we're in Creative mode, this line would disable flying entirely.
+							//We only want to do this if we're in Survival mode.
+							if(player.getGameMode() == GameMode.SURVIVAL)
+							{
+								player.setAllowFlight(false);
+							}
+						}
+					}, 10);
+				}
 			}
-			else if (magnet.getType() == Material.IRON_BLOCK)
+			
+			/**
+			 *     HOOKSWITCH
+			 */
+			if (heldDyeColor == CYAN_DYE && (event.getAction().equals(Action.RIGHT_CLICK_AIR)||event.getAction().equals(Action.RIGHT_CLICK_BLOCK)))
 			{
 				Location playerLoc = player.getLocation();
-				Location magnetLoc = magnet.getLocation();
-				final Vector distanceToBlock = playerLoc.getDirection();
-				if (player.getItemInHand().getData().getData() == (byte)4)
-					distanceToBlock.multiply(-1);
-				//event.getPlayer().sendMessage(ChatColor.AQUA + distanceToBlock.toString());
-
-				player.setAllowFlight(true);
-				player.setFlying(true);
-				distanceToBlock.add(new Vector(0,0.075,0));
-				player.setVelocity(distanceToBlock);
-				world.playSound(playerLoc, Sound.ENDERMAN_HIT, 2F, 0.5F);
-				
-				Bukkit.getServer().getScheduler().scheduleSyncDelayedTask(this, new Runnable(){
-					public void run(){
-						player.setVelocity(distanceToBlock);
-						player.setFallDistance(0f);
-						world.playSound(player.getLocation(), Sound.ENDERMAN_HIT, 2F, 0.5F);
-						player.setFlying(false);
-						if(player.getGameMode() == GameMode.SURVIVAL)
-						{
-							player.setAllowFlight(false);
-						}
-					}
-				}, 10);
+				Location blockLoc = targetBlock.getLocation();
+				//We need to get the data for the block before we change it, so we create a few variables.
+				Material blockMaterial = targetBlock.getType();
+				byte blockType = targetBlock.getData();
+				//This line makes it so that you only swap with Chiseled Stone Bricks. If you replace it with the 
+				//following line, it will swap it with most blocks outside of liquids, air, and bedrock
+				//if (!targetBlock.isEmpty() && !targetBlock.isLiquid() && blockMaterial != Material.BEDROCK)
+				if (blockMaterial == Material.SMOOTH_BRICK && blockType == CHISELED_STONE)
+				{
+					world.playSound(playerLoc, Sound.ENDERMAN_DEATH, 3F, 1F);
+					targetBlock.setType(Material.AIR);
+					Location newPlayerLoc = new Location(world, blockLoc.getX(), blockLoc.getY() + 1, blockLoc.getZ(), playerLoc.getYaw() + 180f, playerLoc.getPitch());
+					player.teleport(newPlayerLoc);
+					playerLoc.getWorld().spawnFallingBlock(playerLoc.add(0, 1, 0), blockMaterial, blockType);
+				}
 			}
 		}
+		
+		/**
+		 *     ROC'S CAPE
+		 */
 		//Check if we have leather in our hand, and if we're on the ground. The player's isOnGround method is deprecated,
 		//so we typecast it as an Entity to get access to the method.
-		if(player.getItemInHand().getType() == Material.LEATHER && ((Entity)player).isOnGround())
+		if(heldItem.getType() == Material.LEATHER && ((Entity)player).isOnGround())
 		{
 			Vector current_velocity = player.getVelocity();
 			//We set the player's velocity to their current velocity plus a vector of 1 in the y direction.
