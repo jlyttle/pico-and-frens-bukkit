@@ -1,6 +1,7 @@
 package io.github.weruder.lightning;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.logging.Level;
 
@@ -181,22 +182,33 @@ public final class Main extends JavaPlugin implements Listener
 				{
 					world.playSound(playerLoc, Sound.ENDERMAN_IDLE, 3F, 1F);
 					Location oldLoc = CaneBlocks.get(player.getName());
-					oldLoc.getBlock().setType(Material.AIR);
+					if (targetBlock.getType() == Material.SMOOTH_BRICK && targetBlock.getData() == CHISELED_STONE)
+						oldLoc.getBlock().setType(Material.AIR);
 					if(oldLoc != blockLoc)
 					{
-						CaneBlocks.put(player.getName(), blockLoc);
-						targetBlock.setType(Material.SMOOTH_BRICK);
-						targetBlock.setData(CHISELED_STONE);
+						BlockFace face = null;
+						List<Block> blocks = player.getLastTwoTargetBlocks(null, 10);
+						if (blocks.size() > 1) {
+						  face = blocks.get(1).getFace(blocks.get(0));
+						}
+						Block newBlock = targetBlock.getRelative(face);
+						CaneBlocks.put(player.getName(), newBlock.getLocation());
+						newBlock.setType(Material.SMOOTH_BRICK);
+						newBlock.setData(CHISELED_STONE);
 					}
 				}
 				else
 				{
 					world.playSound(playerLoc, Sound.ENDERMAN_IDLE, 3F, 1F);
-					Block newBlock = blockLoc.add(0, 1, 0).getBlock();
+					BlockFace face = null;
+					List<Block> blocks = player.getLastTwoTargetBlocks(null, 10);
+					if (blocks.size() > 1) {
+					  face = blocks.get(1).getFace(blocks.get(0));
+					}
+					Block newBlock = targetBlock.getRelative(face);
 					CaneBlocks.put(player.getName(), newBlock.getLocation());
 					newBlock.setType(Material.SMOOTH_BRICK);
 					newBlock.setData(CHISELED_STONE);
-					
 				}
 			}
 		}
