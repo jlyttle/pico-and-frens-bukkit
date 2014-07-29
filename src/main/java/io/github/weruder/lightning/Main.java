@@ -136,7 +136,7 @@ public final class Main extends JavaPlugin implements Listener
 							player.setVelocity(distanceToBlock);
 							//Reset the player's fall distance so they don't die
 							player.setFallDistance(0f);
-							world.playSound(player.getLocation(), Sound.ENDERMAN_HIT, 3F, 1F);
+							//world.playSound(player.getLocation(), Sound.ENDERMAN_HIT, 3F, 1F);
 							player.setFlying(false);
 							//If we're in Creative mode, this line would disable flying entirely.
 							//We only want to do this if we're in Survival mode.
