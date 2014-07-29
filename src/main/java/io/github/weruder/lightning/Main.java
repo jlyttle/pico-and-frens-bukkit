@@ -3,6 +3,7 @@ package io.github.weruder.lightning;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.UUID;
 import java.util.logging.Level;
 
 import org.bukkit.Bukkit;
@@ -46,7 +47,7 @@ public final class Main extends JavaPlugin implements Listener
 	public final byte ORANGE_DYE = (byte)14;
 	
 	public final byte CHISELED_STONE = (byte)3;
-	public Map<String, Location> CaneBlocks = new HashMap<>(); 
+	public Map<UUID, Block> CaneBlocks = new HashMap<>(); 
 	
 	@Override
 	//Whenever we enable the plugin for the first time, this method will be called
@@ -178,37 +179,38 @@ public final class Main extends JavaPlugin implements Listener
 			{
 				Location playerLoc = player.getLocation();
 				Location blockLoc = targetBlock.getLocation();
-				if (CaneBlocks.containsKey(player.getName()))
+				world.playSound(playerLoc, Sound.ENDERMAN_IDLE, 3F, 1F);
+				if (CaneBlocks.containsKey(player.getUniqueId()))
 				{
-					world.playSound(playerLoc, Sound.ENDERMAN_IDLE, 3F, 1F);
-					Location oldLoc = CaneBlocks.get(player.getName());
-					if (targetBlock.getType() == Material.SMOOTH_BRICK && targetBlock.getData() == CHISELED_STONE)
-						oldLoc.getBlock().setType(Material.AIR);
-					if(oldLoc != blockLoc)
+					Block oldBlock = CaneBlocks.get(player.getUniqueId());
+					oldBlock.setType(Material.AIR);
+					
+						
+					/*if(oldBlock.getLocation() != blockLoc)
 					{
 						BlockFace face = null;
 						List<Block> blocks = player.getLastTwoTargetBlocks(null, 10);
 						if (blocks.size() > 1) {
 						  face = blocks.get(1).getFace(blocks.get(0));
 						}
-						Block newBlock = targetBlock.getRelative(face);
-						CaneBlocks.put(player.getName(), newBlock.getLocation());
-						newBlock.setType(Material.SMOOTH_BRICK);
-						newBlock.setData(CHISELED_STONE);
-					}
+						Block selectedBlock = targetBlock.getRelative(face);
+						
+						selectedBlock.setType(Material.SMOOTH_BRICK);
+						selectedBlock.setData(CHISELED_STONE);
+						CaneBlocks.put(player.getUniqueId(), selectedBlock);
+					}*/
 				}
-				else
+				//else
 				{
-					world.playSound(playerLoc, Sound.ENDERMAN_IDLE, 3F, 1F);
 					BlockFace face = null;
 					List<Block> blocks = player.getLastTwoTargetBlocks(null, 10);
 					if (blocks.size() > 1) {
 					  face = blocks.get(1).getFace(blocks.get(0));
 					}
 					Block newBlock = targetBlock.getRelative(face);
-					CaneBlocks.put(player.getName(), newBlock.getLocation());
 					newBlock.setType(Material.SMOOTH_BRICK);
 					newBlock.setData(CHISELED_STONE);
+					CaneBlocks.put(player.getUniqueId(), newBlock);
 				}
 			}
 		}
