@@ -178,14 +178,15 @@ public final class Main extends JavaPlugin implements Listener
 			if (heldDyeColor == ORANGE_DYE && (event.getAction().equals(Action.RIGHT_CLICK_AIR)||event.getAction().equals(Action.RIGHT_CLICK_BLOCK)))
 			{
 				Location playerLoc = player.getLocation();
-				Location blockLoc = targetBlock.getLocation();
 				world.playSound(playerLoc, Sound.ENDERMAN_IDLE, 3F, 1F);
+				boolean spawnBlock = true;
 				if (CaneBlocks.containsKey(player.getUniqueId()))
 				{
 					Block oldBlock = CaneBlocks.get(player.getUniqueId());
 					oldBlock.setType(Material.AIR);
 					
-						
+					if (targetBlock.getLocation() == oldBlock.getLocation())
+						spawnBlock = false;
 					/*if(oldBlock.getLocation() != blockLoc)
 					{
 						BlockFace face = null;
@@ -200,7 +201,7 @@ public final class Main extends JavaPlugin implements Listener
 						CaneBlocks.put(player.getUniqueId(), selectedBlock);
 					}*/
 				}
-				//else
+				if(spawnBlock)
 				{
 					BlockFace face = null;
 					List<Block> blocks = player.getLastTwoTargetBlocks(null, 10);
