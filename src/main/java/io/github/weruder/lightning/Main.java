@@ -3,13 +3,12 @@ package io.github.weruder.lightning;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Random;
 import java.util.UUID;
 import java.util.logging.Level;
 
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
-import org.bukkit.DyeColor;
-import org.bukkit.Effect;
 import org.bukkit.GameMode;
 import org.bukkit.Location;
 import org.bukkit.Material;
@@ -19,23 +18,23 @@ import org.bukkit.block.Block;
 import org.bukkit.block.BlockFace;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.Fireball;
+import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.Action;
+import org.bukkit.event.block.BlockBreakEvent;
+import org.bukkit.event.entity.EntityDamageByEntityEvent;
+import org.bukkit.event.player.PlayerEggThrowEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.event.player.PlayerLoginEvent;
 import org.bukkit.event.player.PlayerMoveEvent;
 import org.bukkit.inventory.ItemStack;
-import org.bukkit.material.Dye;
-import org.bukkit.material.MaterialData;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
 import org.bukkit.util.Vector;
-
-import io.github.weruder.lightning.BlockUtil;
 
 public final class Main extends JavaPlugin implements Listener 
 {
@@ -46,8 +45,18 @@ public final class Main extends JavaPlugin implements Listener
 	public final byte CYAN_DYE = (byte)6;
 	public final byte ORANGE_DYE = (byte)14;
 	
+	public final byte OAK_SAPLING = (byte)0;
+	public final byte SPRUCE_SAPLING = (byte)1;
+	public final byte BIRCH_SAPLING = (byte)2;
+	public final byte JUNGLE_SAPLING = (byte)3;
+	public final byte ACACIA_SAPLING = (byte)4;
+	public final byte DARK_OAK_SAPLING = (byte)5;
+	
 	public final byte CHISELED_STONE = (byte)3;
+	public final Random rand = new Random();
+	
 	public Map<UUID, Block> CaneBlocks = new HashMap<>(); 
+	public Map<UUID, Location> PlayerTeleportLocations = new HashMap<>(); 
 	
 	@Override
 	//Whenever we enable the plugin for the first time, this method will be called
@@ -79,6 +88,15 @@ public final class Main extends JavaPlugin implements Listener
 					player.getLocation().getBlock().setType(Material.POWERED_RAIL);
 				}
 			}
+		}
+	}
+	
+	@EventHandler
+	public void onBlockBreak(BlockBreakEvent event)
+	{
+		if(event.getBlock().getType() == Material.LONG_GRASS && rand.nextInt(6) == 1)
+		{
+			event.getBlock().getWorld().dropItemNaturally(event.getBlock().getLocation(), new ItemStack(Material.SAPLING, 1, (short) rand.nextInt(6)));
 		}
 	}
 	
@@ -187,19 +205,6 @@ public final class Main extends JavaPlugin implements Listener
 					
 					if (targetBlock.getLocation() == oldBlock.getLocation())
 						spawnBlock = false;
-					/*if(oldBlock.getLocation() != blockLoc)
-					{
-						BlockFace face = null;
-						List<Block> blocks = player.getLastTwoTargetBlocks(null, 10);
-						if (blocks.size() > 1) {
-						  face = blocks.get(1).getFace(blocks.get(0));
-						}
-						Block selectedBlock = targetBlock.getRelative(face);
-						
-						selectedBlock.setType(Material.SMOOTH_BRICK);
-						selectedBlock.setData(CHISELED_STONE);
-						CaneBlocks.put(player.getUniqueId(), selectedBlock);
-					}*/
 				}
 				if(spawnBlock)
 				{
@@ -213,6 +218,79 @@ public final class Main extends JavaPlugin implements Listener
 					newBlock.setData(CHISELED_STONE);
 					CaneBlocks.put(player.getUniqueId(), newBlock);
 				}
+			}
+		}
+		
+		if(heldItem.getType() == Material.SAPLING && event.getAction().equals(Action.RIGHT_CLICK_AIR))
+		{
+			//Cut down on repeated calls to getData().getData(), just store the number for later.
+			byte heldSaplingType = heldItem.getData().getData();
+			
+			/**
+			 *     GALE SEED
+			 */
+			if (heldSaplingType == OAK_SAPLING)
+			{
+				player.getInventory().removeItem(new ItemStack(Material.SAPLING, 1, OAK_SAPLING));
+				
+				if (PlayerTeleportLocations.containsKey(player.getUniqueId()))
+				{
+					player.teleport(PlayerTeleportLocations.remove(player.getUniqueId()));
+				}
+				else
+				{
+					PlayerTeleportLocations.put(player.getUniqueId(), player.getLocation());
+					player.teleport(new Location(world, 655.5, 107.0, 497.5));
+				}
+			}
+			
+			/**
+			 * 		PEGASUS SEED
+			 */
+			if (heldSaplingType == BIRCH_SAPLING)
+			{
+				player.getInventory().removeItem(new ItemStack(Material.SAPLING, 1, BIRCH_SAPLING));
+				player.addPotionEffect(new PotionEffect(PotionEffectType.SPEED, 20 * 10, 4));
+				player.addPotionEffect(new PotionEffect(PotionEffectType.JUMP, 20 * 10, 2));
+			}
+
+			/**
+			 * 		EMBER SEED
+			 */
+			if (heldSaplingType == ACACIA_SAPLING)
+			{
+				player.getInventory().removeItem(new ItemStack(Material.SAPLING, 1, ACACIA_SAPLING));
+				Fireball fire = player.getWorld().spawn(event.getPlayer().getLocation().add(new Vector(0.0D, 1.0D, 0.0D)), Fireball.class); 
+				fire.setFireTicks(0); 
+				fire.setShooter(player); 
+			}
+			
+			/**
+			 * 		MYSTERY SEED
+			 */
+			if (heldSaplingType == SPRUCE_SAPLING)
+			{
+				//player.getInventory().removeItem(new ItemStack(Material.SAPLING, 1, SPRUCE_SAPLING));
+				
+			}
+
+			/**
+			 * 		SCENT SEED
+			 */
+			if (heldSaplingType == JUNGLE_SAPLING)
+			{
+				player.getInventory().removeItem(new ItemStack(Material.SAPLING, 1, JUNGLE_SAPLING));
+				player.addPotionEffect(new PotionEffect(PotionEffectType.CONFUSION, 20 * 30, 4));
+				player.addPotionEffect(new PotionEffect(PotionEffectType.BLINDNESS, 20 * 30, 0));
+			}
+
+			/**
+			 * 		GASHA SEED
+			 */
+			if (heldSaplingType == DARK_OAK_SAPLING)
+			{
+				//player.getInventory().removeItem(new ItemStack(Material.SAPLING, 1, DARK_OAK_SAPLING));
+				
 			}
 		}
 		
@@ -248,6 +326,67 @@ public final class Main extends JavaPlugin implements Listener
 				fire.setShooter(player); 
 			}
 		}*/
+	}
+	
+	@EventHandler
+	public void playerHitPlayerEvent(EntityDamageByEntityEvent event) 
+	{
+		Entity victim = event.getEntity();
+		if (event.getDamager() instanceof Player)
+		{
+			Player player = (Player) event.getDamager();
+			ItemStack heldItem = player.getItemInHand();
+			if(heldItem.getType() == Material.SAPLING)
+			{
+				@SuppressWarnings("deprecation")
+				byte heldSaplingType = heldItem.getData().getData();
+				
+				/**
+				 *     GALE SEED
+				 */
+				if (heldSaplingType == OAK_SAPLING)
+				{
+					player.getInventory().removeItem(new ItemStack(Material.SAPLING, 1, OAK_SAPLING));
+					victim.teleport(victim.getLocation().add(rand.nextInt(10) * (Math.random() < 0.5 ? -1 : 1), rand.nextInt(10), rand.nextInt(10) * (Math.random() < 0.5 ? -1 : 1)));
+				}
+				
+				/**
+				 * 		EMBER SEED
+				 */
+				if (heldSaplingType == ACACIA_SAPLING)
+				{
+					player.getInventory().removeItem(new ItemStack(Material.SAPLING, 1, ACACIA_SAPLING));
+					victim.setFireTicks(100);
+				}
+				
+				/**
+				 * 		PEGASUS SEED
+				 */
+				if (heldSaplingType == BIRCH_SAPLING)
+				{
+					player.getInventory().removeItem(new ItemStack(Material.SAPLING, 1, BIRCH_SAPLING));
+
+					if (victim instanceof LivingEntity)
+					{
+						((LivingEntity) victim).addPotionEffect(new PotionEffect(PotionEffectType.SLOW, 20 * 5, 7));
+					}
+				}
+				
+				/**
+				 * 		SCENT SEED
+				 */
+				if (heldSaplingType == JUNGLE_SAPLING)
+				{
+					player.getInventory().removeItem(new ItemStack(Material.SAPLING, 1, JUNGLE_SAPLING));
+					if (victim instanceof LivingEntity)
+					{
+						((LivingEntity) victim).addPotionEffect(new PotionEffect(PotionEffectType.CONFUSION, 20 * 10, 4));
+						((LivingEntity) victim).addPotionEffect(new PotionEffect(PotionEffectType.BLINDNESS, 20 * 10, 0));
+					}
+				}
+
+			}
+		}
 	}
 	/*
 	@SuppressWarnings("deprecation")
