@@ -231,6 +231,8 @@ public final class Main extends JavaPlugin implements Listener
 			 */
 			if (heldSaplingType == OAK_SAPLING)
 			{
+				world.playSound(player.getLocation(), Sound.ENDERMAN_TELEPORT, 3F, 1F);
+				
 				player.getInventory().removeItem(new ItemStack(Material.SAPLING, 1, OAK_SAPLING));
 				
 				if (PlayerTeleportLocations.containsKey(player.getUniqueId()))
@@ -242,6 +244,8 @@ public final class Main extends JavaPlugin implements Listener
 					PlayerTeleportLocations.put(player.getUniqueId(), player.getLocation());
 					player.teleport(new Location(world, 655.5, 107.0, 497.5));
 				}
+
+				world.playSound(player.getLocation(), Sound.ENDERMAN_TELEPORT, 3F, 1F);
 			}
 			
 			/**
@@ -270,8 +274,9 @@ public final class Main extends JavaPlugin implements Listener
 			 */
 			if (heldSaplingType == SPRUCE_SAPLING)
 			{
-				//player.getInventory().removeItem(new ItemStack(Material.SAPLING, 1, SPRUCE_SAPLING));
-				
+				player.getInventory().removeItem(new ItemStack(Material.SAPLING, 1, SPRUCE_SAPLING));
+				player.getInventory().addItem(new ItemStack(Material.RED_ROSE, 64));
+				world.playSound(player.getLocation(), Sound.ENDERMAN_IDLE, 3F, 1F);
 			}
 
 			/**
@@ -347,6 +352,7 @@ public final class Main extends JavaPlugin implements Listener
 				if (heldSaplingType == OAK_SAPLING)
 				{
 					player.getInventory().removeItem(new ItemStack(Material.SAPLING, 1, OAK_SAPLING));
+					victim.getWorld().playSound(victim.getLocation(), Sound.ENDERMAN_TELEPORT, 3F, 1F);
 					victim.teleport(victim.getLocation().add(rand.nextInt(10) * (Math.random() < 0.5 ? -1 : 1), rand.nextInt(10), rand.nextInt(10) * (Math.random() < 0.5 ? -1 : 1)));
 				}
 				
@@ -370,6 +376,39 @@ public final class Main extends JavaPlugin implements Listener
 					{
 						((LivingEntity) victim).addPotionEffect(new PotionEffect(PotionEffectType.SLOW, 20 * 5, 7));
 					}
+				}
+				
+				/**
+				 * 		MYSTERY SEED
+				 */
+				if (heldSaplingType == SPRUCE_SAPLING)
+				{
+					player.getInventory().removeItem(new ItemStack(Material.SAPLING, 1, SPRUCE_SAPLING));
+					int selector = rand.nextInt(4);
+					if (selector == 0)
+					{
+						victim.teleport(victim.getLocation().add(rand.nextInt(10) * (Math.random() < 0.5 ? -1 : 1), rand.nextInt(10), rand.nextInt(10) * (Math.random() < 0.5 ? -1 : 1)));
+					}
+					else if (selector == 1)
+					{
+						if (victim instanceof LivingEntity)
+						{
+							((LivingEntity) victim).addPotionEffect(new PotionEffect(PotionEffectType.SLOW, 20 * 5, 7));
+						}
+					}
+					else if (selector == 2)
+					{
+						victim.setFireTicks(100);
+					}
+					else if (selector == 3)
+					{
+						if (victim instanceof LivingEntity)
+						{
+							((LivingEntity) victim).addPotionEffect(new PotionEffect(PotionEffectType.CONFUSION, 20 * 10, 4));
+							((LivingEntity) victim).addPotionEffect(new PotionEffect(PotionEffectType.BLINDNESS, 20 * 10, 0));
+						}
+					}
+					victim.getWorld().playSound(victim.getLocation(), Sound.ENDERMAN_IDLE, 3F, 1F);
 				}
 				
 				/**
