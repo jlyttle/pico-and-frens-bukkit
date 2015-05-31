@@ -27,6 +27,7 @@ import org.bukkit.event.block.Action;
 import org.bukkit.event.block.BlockBreakEvent;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
 import org.bukkit.event.player.PlayerEggThrowEvent;
+import org.bukkit.event.player.PlayerEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.event.player.PlayerLoginEvent;
 import org.bukkit.event.player.PlayerMoveEvent;
@@ -294,8 +295,14 @@ public final class Main extends JavaPlugin implements Listener
 			 */
 			if (heldSaplingType == DARK_OAK_SAPLING)
 			{
-				//player.getInventory().removeItem(new ItemStack(Material.SAPLING, 1, DARK_OAK_SAPLING));
-				
+				player.getInventory().removeItem(new ItemStack(Material.SAPLING, 1, DARK_OAK_SAPLING));
+				Player P1 = Bukkit.getOnlinePlayers()[new Random().nextInt(Bukkit.getOnlinePlayers().length)];
+                                /* player.getInventory().addItem(new ItemStack(Material.SAPLING, 1, DARK_OAK_SAPLING));
+                                 *
+                                 * This would give the item back to the player rather than a random player, P1.
+                                 */
+                                P1.getInventory().addItem(new ItemStack(Material.SAPLING, 1, DARK_OAK_SAPLING));
+                                P1.chat("Special gift from " + player + " !");
 			}
 		}
 		
