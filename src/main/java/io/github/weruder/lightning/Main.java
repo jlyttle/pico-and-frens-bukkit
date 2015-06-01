@@ -293,16 +293,23 @@ public final class Main extends JavaPlugin implements Listener
 			/**
 			 * 		GASHA SEED
 			 */
-			if (heldSaplingType == DARK_OAK_SAPLING)
+			if (heldSaplingType == DARK_OAK_SAPLING && Bukkit.getOnlinePlayers().length > 1)
 			{
 				player.getInventory().removeItem(new ItemStack(Material.SAPLING, 1, DARK_OAK_SAPLING));
 				Player P1 = Bukkit.getOnlinePlayers()[new Random().nextInt(Bukkit.getOnlinePlayers().length)];
+                                    if (P1 == player)
+                                    {
+                                        P1 = Bukkit.getOnlinePlayers()[new Random().nextInt(Bukkit.getOnlinePlayers().length)];
+                                    }
+                                    
                                 /* player.getInventory().addItem(new ItemStack(Material.SAPLING, 1, DARK_OAK_SAPLING));
                                  *
                                  * This would give the item back to the player rather than a random player, P1.
                                  */
+                                
                                 P1.getInventory().addItem(new ItemStack(Material.SAPLING, 1, DARK_OAK_SAPLING));
-                                P1.chat("Special gift from " + player + " !");
+                                P1.sendMessage("Special gift from " + player.getDisplayName() + " !");
+                                
 			}
 		}
 		
