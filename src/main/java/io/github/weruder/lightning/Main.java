@@ -297,7 +297,7 @@ public final class Main extends JavaPlugin implements Listener
 			{
 				player.getInventory().removeItem(new ItemStack(Material.SAPLING, 1, DARK_OAK_SAPLING));
 				Player P1 = Bukkit.getOnlinePlayers()[new Random().nextInt(Bukkit.getOnlinePlayers().length)];
-                                    if (P1 == player)
+                                    if (player.getDisplayName() == P1.getDisplayName())
                                     {
                                         P1 = Bukkit.getOnlinePlayers()[new Random().nextInt(Bukkit.getOnlinePlayers().length)];
                                     }
