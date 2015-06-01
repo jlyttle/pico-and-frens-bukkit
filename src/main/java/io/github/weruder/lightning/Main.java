@@ -297,7 +297,7 @@ public final class Main extends JavaPlugin implements Listener
 			{
 				player.getInventory().removeItem(new ItemStack(Material.SAPLING, 1, DARK_OAK_SAPLING));
 				Player P1 = Bukkit.getOnlinePlayers()[new Random().nextInt(Bukkit.getOnlinePlayers().length)];
-                                    if (player.getDisplayName() == P1.getDisplayName())
+                                    while (player.getDisplayName().equals(P1.getDisplayName()) && Bukkit.getOnlinePlayers().length > 1)
                                     {
                                         P1 = Bukkit.getOnlinePlayers()[new Random().nextInt(Bukkit.getOnlinePlayers().length)];
                                     }
@@ -309,6 +309,7 @@ public final class Main extends JavaPlugin implements Listener
                                 
                                 P1.getInventory().addItem(new ItemStack(Material.SAPLING, 1, DARK_OAK_SAPLING));
                                 P1.sendMessage("Special gift from " + player.getDisplayName() + " !");
+                                player.sendMessage("Thanks fam. ~" + P1.getDisplayName());
                                 
 			}
 		}
