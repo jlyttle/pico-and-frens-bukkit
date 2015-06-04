@@ -312,40 +312,50 @@ public final class Main extends JavaPlugin implements Listener
                                 
                                 if (nuRando > -1 && nuRando <= 20)
                                 {
-                                    P1.setHealth(9);
+                                    double resultHP = (P1.getHealth() - 2.0);
+                                    if (resultHP < 0)
+                                    {
+                                        resultHP = 0;
+                                    }
+                                    P1.setHealth(resultHP);
                                     P1.sendMessage(ChatColor.AQUA + "A Gasha seed exploded!");
                                 }
-                                if (nuRando >= 21 && nuRando <= 25)
+                                else if (nuRando >= 21 && nuRando <= 25)
                                 {
-                                    P1.setHealth(5);
+                                    double resultHP = (P1.getHealth() - 5.0);
+                                    if (resultHP < 0)
+                                    {
+                                        resultHP = 0;
+                                    }
+                                    P1.setHealth(resultHP);
                                     P1.sendMessage(ChatColor.AQUA + "The Gasha seed is aggressive!");
                                 }    
-                                if (nuRando >= 26 && nuRando <= 30)
+                                else if (nuRando >= 26 && nuRando <= 30)
                                 {
                                     P1.getInventory().addItem(new ItemStack(Material.IRON_SWORD));
                                 }
-                                if (nuRando >= 31 && nuRando <= 35)
+                                else if (nuRando >= 31 && nuRando <= 35)
                                 {
                                     P1.getInventory().addItem(new ItemStack(Material.IRON_PICKAXE));
                                 }
-                                if (nuRando >= 36 && nuRando <= 40)
+                                else if (nuRando >= 36 && nuRando <= 40)
                                 {
                                     P1.getInventory().addItem(new ItemStack(Material.DIAMOND, 1));
                                 }
-                                if (nuRando >= 41 && nuRando <= 60) // 20% chance of Gasha Seed
+                                else if (nuRando >= 41 && nuRando <= 60) // 20% chance of Gasha Seed
                                 {
                                     P1.getInventory().addItem(new ItemStack(Material.SAPLING,1, DARK_OAK_SAPLING));
                                 }
-                                if (nuRando >= 61 && nuRando <= 70)
+                                else if (nuRando >= 61 && nuRando <= 70)
                                 {
                                     P1.getInventory().addItem(new ItemStack(Material.GOLD_HOE));
                                 }
-                                if (nuRando >= 71 && nuRando <= 80)
+                                else if (nuRando >= 71 && nuRando <= 80)
                                 {
                                     P1.getInventory().addItem(new ItemStack(Material.BOAT));
                                     P1.sendMessage(ChatColor.AQUA + "You have received a blessing from BOATDAD!");
                                 }
-                                if (nuRando >= 81 && nuRando <= 99)
+                                else if (nuRando >= 81 && nuRando <= 99)
                                 {
                                     Firework f1 = P1.getWorld().spawn(P1.getLocation(), Firework.class);
                                     FireworkMeta fm1 = f1.getFireworkMeta();
@@ -356,7 +366,7 @@ public final class Main extends JavaPlugin implements Listener
                                     fm1.setPower(0);
                                     f1.setFireworkMeta(fm1);
                                     
-                                    ThrownExpBottle b1 = P1.getWorld().spawn(P1.getLocation(), ThrownExpBottle.class);
+                                    P1.getWorld().spawn(P1.getLocation(), ThrownExpBottle.class);
                                     
                                     P1.sendMessage(ChatColor.AQUA + "A Gasha seed exploded!");
                                 }
@@ -364,7 +374,7 @@ public final class Main extends JavaPlugin implements Listener
                                 if (nuRando >= 26 && nuRando <= 70)
                                 {
                                     P1.sendMessage(ChatColor.AQUA + "Special gift from " + player.getDisplayName() + "!");
-                                    player.sendMessage(ChatColor.MAGIC + "Thanks fam. ~" + P1.getDisplayName());
+                                    player.sendMessage(ChatColor.WHITE + "Thanks fam. ~" + P1.getDisplayName());
                                 }
                                 
                                 
