@@ -9,6 +9,9 @@ import java.util.logging.Level;
 
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
+import org.bukkit.Color;
+import org.bukkit.FireworkEffect;
+import org.bukkit.FireworkEffect.Type;
 import org.bukkit.GameMode;
 import org.bukkit.Location;
 import org.bukkit.Material;
@@ -18,8 +21,10 @@ import org.bukkit.block.Block;
 import org.bukkit.block.BlockFace;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.Fireball;
+import org.bukkit.entity.Firework;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
+import org.bukkit.entity.ThrownExpBottle;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
@@ -32,6 +37,7 @@ import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.event.player.PlayerLoginEvent;
 import org.bukkit.event.player.PlayerMoveEvent;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.inventory.meta.FireworkMeta;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
@@ -302,14 +308,65 @@ public final class Main extends JavaPlugin implements Listener
                                         P1 = Bukkit.getOnlinePlayers()[new Random().nextInt(Bukkit.getOnlinePlayers().length)];
                                     }
                                     
-                                /* player.getInventory().addItem(new ItemStack(Material.SAPLING, 1, DARK_OAK_SAPLING));
-                                 *
-                                 * This would give the item back to the player rather than a random player, P1.
-                                 */
+                                int nuRando = new Random().nextInt(99);
                                 
-                                P1.getInventory().addItem(new ItemStack(Material.SAPLING, 1, DARK_OAK_SAPLING));
-                                P1.sendMessage("Special gift from " + player.getDisplayName() + " !");
-                                player.sendMessage("Thanks fam. ~" + P1.getDisplayName());
+                                if (nuRando > -1 && nuRando <= 20)
+                                {
+                                    P1.setHealth(9);
+                                    P1.sendMessage(ChatColor.AQUA + "A Gasha seed exploded!");
+                                }
+                                if (nuRando >= 21 && nuRando <= 25)
+                                {
+                                    P1.setHealth(5);
+                                    P1.sendMessage(ChatColor.AQUA + "The Gasha seed is aggressive!");
+                                }    
+                                if (nuRando >= 26 && nuRando <= 30)
+                                {
+                                    P1.getInventory().addItem(new ItemStack(Material.IRON_SWORD));
+                                }
+                                if (nuRando >= 31 && nuRando <= 35)
+                                {
+                                    P1.getInventory().addItem(new ItemStack(Material.IRON_PICKAXE));
+                                }
+                                if (nuRando >= 36 && nuRando <= 40)
+                                {
+                                    P1.getInventory().addItem(new ItemStack(Material.DIAMOND, 1));
+                                }
+                                if (nuRando >= 41 && nuRando <= 60) // 20% chance of Gasha Seed
+                                {
+                                    P1.getInventory().addItem(new ItemStack(Material.SAPLING,1, DARK_OAK_SAPLING));
+                                }
+                                if (nuRando >= 61 && nuRando <= 70)
+                                {
+                                    P1.getInventory().addItem(new ItemStack(Material.GOLD_HOE));
+                                }
+                                if (nuRando >= 71 && nuRando <= 80)
+                                {
+                                    P1.getInventory().addItem(new ItemStack(Material.BOAT));
+                                    P1.sendMessage(ChatColor.AQUA + "You have received a blessing from BOATDAD!");
+                                }
+                                if (nuRando >= 81 && nuRando <= 99)
+                                {
+                                    Firework f1 = P1.getWorld().spawn(P1.getLocation(), Firework.class);
+                                    FireworkMeta fm1 = f1.getFireworkMeta();
+                                    
+                                    FireworkEffect e1 = FireworkEffect.builder().withColor(Color.BLUE).with(Type.BALL).build();
+                                    
+                                    fm1.addEffect(e1);
+                                    fm1.setPower(0);
+                                    f1.setFireworkMeta(fm1);
+                                    
+                                    ThrownExpBottle b1 = P1.getWorld().spawn(P1.getLocation(), ThrownExpBottle.class);
+                                    
+                                    P1.sendMessage(ChatColor.AQUA + "A Gasha seed exploded!");
+                                }
+
+                                if (nuRando >= 26 && nuRando <= 70)
+                                {
+                                    P1.sendMessage(ChatColor.AQUA + "Special gift from " + player.getDisplayName() + "!");
+                                    player.sendMessage(ChatColor.MAGIC + "Thanks fam. ~" + P1.getDisplayName());
+                                }
+                                
                                 
 			}
 		}
