@@ -587,7 +587,7 @@ public final class Main extends JavaPlugin implements Listener
                     final Player moveBoy = tp.getPlayer();
                     final World world = moveBoy.getWorld();
                     final Location nexon = new Location(world, 655.5, 107.0, 497.5);
-                    if (tp.getTo() != nexon) {
+                    if (tp.getTo() != nexon.getChunk()) {
                         PlayerTeleportLocations.remove(moveBoy.getUniqueId());
                     }
                 }
