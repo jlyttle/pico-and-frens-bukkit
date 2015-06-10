@@ -316,9 +316,9 @@ public final class Main extends JavaPlugin implements Listener
                                 if (nuRando > -1 && nuRando <= 20)
                                 {
                                     double resultHP = (P1.getHealth() - 2.0);
-                                    if (resultHP < 0)
+                                    if (resultHP < 1)
                                     {
-                                        resultHP = 0;
+                                        resultHP = 1;
                                     }
                                     P1.setHealth(resultHP);
                                     P1.sendMessage(ChatColor.AQUA + "A Gasha seed exploded!");
@@ -326,9 +326,9 @@ public final class Main extends JavaPlugin implements Listener
                                 else if (nuRando >= 21 && nuRando <= 25)
                                 {
                                     double resultHP = (P1.getHealth() - 5.0);
-                                    if (resultHP < 0)
+                                    if (resultHP < 1)
                                     {
-                                        resultHP = 0;
+                                        resultHP = 1;
                                     }
                                     P1.setHealth(resultHP);
                                     P1.sendMessage(ChatColor.AQUA + "The Gasha seed is aggressive!");
@@ -349,9 +349,20 @@ public final class Main extends JavaPlugin implements Listener
                                 {
                                     P1.getInventory().addItem(new ItemStack(Material.SAPLING,1, DARK_OAK_SAPLING));
                                 }
-                                else if (nuRando >= 61 && nuRando <= 70)
+                                else if (nuRando >= 61 && nuRando <= 69)
                                 {
                                     P1.getInventory().addItem(new ItemStack(Material.GOLD_HOE));
+                                }
+                                else if (nuRando == 70)
+                                {
+                                    ItemStack coolRod = new ItemStack(Material.FISHING_ROD);
+                                                    ItemMeta godRod = coolRod.getItemMeta();
+                                                    godRod.setDisplayName(ChatColor.DARK_RED + "Canne à pêche de Boatdad");
+                                                    godRod.addEnchant(Enchantment.LUCK, 3, true);
+                                                    godRod.addEnchant(Enchantment.DURABILITY, 3, true);
+                                                    godRod.addEnchant(Enchantment.LURE, 3, true);
+                                                    coolRod.setItemMeta(godRod);
+                                                    P1.getInventory().addItem(coolRod);
                                 }
                                 else if (nuRando >= 71 && nuRando <= 80)
                                 {
@@ -520,8 +531,7 @@ public final class Main extends JavaPlugin implements Listener
                                     {
                                         final Player sickBoy = ((Player) victim);
                                         sickBoy.getInventory().addItem(new ItemStack(Material.RED_ROSE, 1));
-                                        if (UnthankfulList.containsKey(sickBoy.getUniqueId()) == true) {}
-                                        else {
+                                        if (UnthankfulList.containsKey(sickBoy.getUniqueId()) == false) {
                                             Bukkit.broadcastMessage(ChatColor.AQUA + sickBoy.getDisplayName() + " has the poppy virus!");
                                             sickBoy.sendMessage("You got the poppy virus! Good luck and breathing will come to you only if you say \"Thank Pico\".");      
                                             UnthankfulList.put(sickBoy.getUniqueId(), Boolean.TRUE);
@@ -550,17 +560,21 @@ public final class Main extends JavaPlugin implements Listener
                                                 public void goodBoy(AsyncPlayerChatEvent e) {
                                                 Player p = e.getPlayer();
                                                 if(e.getMessage().equalsIgnoreCase("Thank Pico") && UnthankfulList.containsKey(p.getUniqueId())) {
-                                                    ItemStack coolRod = new ItemStack(Material.FISHING_ROD);
-                                                    ItemMeta godRod = coolRod.getItemMeta();
-                                                    godRod.setDisplayName(ChatColor.DARK_RED + "Canne à pêche de Boatdad");
-                                                    godRod.addEnchant(Enchantment.LUCK, 3, true);
-                                                    godRod.addEnchant(Enchantment.DURABILITY, 3, true);
-                                                    godRod.addEnchant(Enchantment.LURE, 3, true);
-                                                    coolRod.setItemMeta(godRod);
-                                                    p.getInventory().addItem(coolRod);
-                                                    
                                                     UnthankfulList.remove(p.getUniqueId());
-                                                    //Potion coolBreath = new Potion(c);
+                                                    p.sendMessage(ChatColor.BLUE + "The Gasha seed compels you to get a good night's rest after such a horrible illness.");
+                                                    try {
+                                                        Thread.sleep(2000);
+                                                    } catch (InterruptedException ex) {
+                                                        Logger.getLogger(Main.class.getName()).log(Level.SEVERE, null, ex);
+                                                    }
+                                                    Firework f1 = p.getWorld().spawn(p.getLocation(), Firework.class);
+                                                        FireworkMeta fm1 = f1.getFireworkMeta();
+                                                        FireworkEffect e1 = FireworkEffect.builder().withColor(Color.BLUE).with(Type.BALL).build();
+                                                        fm1.addEffect(e1);
+                                                        fm1.setPower(0);
+                                                        f1.setFireworkMeta(fm1);
+                                                    p.sendMessage(ChatColor.DARK_BLUE + "The Gasha seed flew away!");    
+                                                    
                                                 }
                                         }
 	/*
