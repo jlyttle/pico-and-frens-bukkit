@@ -16,7 +16,6 @@ import org.bukkit.FireworkEffect.Type;
 import org.bukkit.GameMode;
 import org.bukkit.Location;
 import org.bukkit.Material;
-import org.bukkit.Server;
 import org.bukkit.Sound;
 import org.bukkit.World;
 import org.bukkit.block.Block;
@@ -35,8 +34,6 @@ import org.bukkit.event.block.Action;
 import org.bukkit.event.block.BlockBreakEvent;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
 import org.bukkit.event.player.AsyncPlayerChatEvent;
-import org.bukkit.event.player.PlayerEggThrowEvent;
-import org.bukkit.event.player.PlayerEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.event.player.PlayerLoginEvent;
 import org.bukkit.event.player.PlayerMoveEvent;
@@ -44,10 +41,8 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.FireworkMeta;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.plugin.java.JavaPlugin;
-import org.bukkit.potion.Potion;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
-import org.bukkit.scheduler.BukkitRunnable;
 import org.bukkit.util.Vector;
 
 public final class Main extends JavaPlugin implements Listener 
@@ -97,7 +92,7 @@ public final class Main extends JavaPlugin implements Listener
 		{
 			if (player.getEquipment().getBoots().getType() == Material.GOLD_BOOTS)
 			{
-				final Material standingOn = player.getLocation().add(0,-1,0).getBlock().getType();
+				final Material standingOn = player.getLocation().add(0,-1,0).getBlock().getType();  // gets the material of block the player is standing on and holds it in variable standingOn of type Material
 				if(standingOn != Material.AIR && standingOn != Material.POWERED_RAIL && standingOn != Material.WATER && standingOn != Material.LAVA)
 				{
 					player.getLocation().getBlock().setType(Material.POWERED_RAIL);
@@ -524,11 +519,14 @@ public final class Main extends JavaPlugin implements Listener
                                     if (victim instanceof Player)
                                     {
                                         final Player sickBoy = ((Player) victim);
-                                        ((Player) victim).getInventory().addItem(new ItemStack(Material.RED_ROSE, 1));
-                                        Bukkit.broadcastMessage(ChatColor.AQUA + ((Player) victim).getDisplayName() + " has the poppy virus!");
-                                        ((Player) victim).sendMessage("You got the poppy virus! Good luck and breathing will come to you only if you say \"Thank Pico\".");      
-                                        UnthankfulList.put(((Player) victim).getUniqueId(), Boolean.TRUE);
-                                        
+                                        sickBoy.getInventory().addItem(new ItemStack(Material.RED_ROSE, 1));
+                                        if (UnthankfulList.containsKey(sickBoy.getUniqueId()) == true) {}
+                                        else {
+                                            Bukkit.broadcastMessage(ChatColor.AQUA + sickBoy.getDisplayName() + " has the poppy virus!");
+                                            sickBoy.sendMessage("You got the poppy virus! Good luck and breathing will come to you only if you say \"Thank Pico\".");      
+                                            UnthankfulList.put(sickBoy.getUniqueId(), Boolean.TRUE);
+                                         }
+                                     
                                         Bukkit.getScheduler().runTaskAsynchronously(this, new Runnable() {
                                             @Override
                                             public void run() {
