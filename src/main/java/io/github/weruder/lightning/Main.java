@@ -37,6 +37,7 @@ import org.bukkit.event.player.AsyncPlayerChatEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.event.player.PlayerLoginEvent;
 import org.bukkit.event.player.PlayerMoveEvent;
+import org.bukkit.event.player.PlayerTeleportEvent;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.FireworkMeta;
 import org.bukkit.inventory.meta.ItemMeta;
@@ -230,7 +231,7 @@ public final class Main extends JavaPlugin implements Listener
 				}
 			}
 		}
-		
+                
 		if(heldItem.getType() == Material.SAPLING && event.getAction().equals(Action.RIGHT_CLICK_AIR))
 		{
 			//Cut down on repeated calls to getData().getData(), just store the number for later.
@@ -254,6 +255,8 @@ public final class Main extends JavaPlugin implements Listener
 					PlayerTeleportLocations.put(player.getUniqueId(), player.getLocation());
 					player.teleport(new Location(world, 655.5, 107.0, 497.5));
 				}
+                                // We want the player to be removed from the hashmap if a command block teleport is used, so that next time the player uses
+                                //the seed, they go to the nexon. 
 
 				world.playSound(player.getLocation(), Sound.ENDERMAN_TELEPORT, 3F, 1F);
 			}
@@ -577,6 +580,19 @@ public final class Main extends JavaPlugin implements Listener
                                                     
                                                 }
                                         }
+                                                
+                @EventHandler
+                public void onTeleport(PlayerTeleportEvent tp)
+                {
+                    final Player moveBoy = tp.getPlayer();
+                    final World world = moveBoy.getWorld();
+                    final Location nexon = new Location(world, 655.5, 107.0, 497.5);
+                    if (tp.getTo() != nexon) {
+                        PlayerTeleportLocations.remove(moveBoy.getUniqueId());
+                    }
+                }
+                // This would probably remove the key from hashmap if the player tp's from another world
+                // (need to specify which world rather than getting current world)
 	/*
 	@SuppressWarnings("deprecation")
 	@EventHandler
