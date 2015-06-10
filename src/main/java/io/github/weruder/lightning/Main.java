@@ -6,6 +6,7 @@ import java.util.Map;
 import java.util.Random;
 import java.util.UUID;
 import java.util.logging.Level;
+import java.util.logging.Logger;
 
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
@@ -15,10 +16,12 @@ import org.bukkit.FireworkEffect.Type;
 import org.bukkit.GameMode;
 import org.bukkit.Location;
 import org.bukkit.Material;
+import org.bukkit.Server;
 import org.bukkit.Sound;
 import org.bukkit.World;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockFace;
+import org.bukkit.enchantments.Enchantment;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.Fireball;
 import org.bukkit.entity.Firework;
@@ -31,6 +34,7 @@ import org.bukkit.event.Listener;
 import org.bukkit.event.block.Action;
 import org.bukkit.event.block.BlockBreakEvent;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
+import org.bukkit.event.player.AsyncPlayerChatEvent;
 import org.bukkit.event.player.PlayerEggThrowEvent;
 import org.bukkit.event.player.PlayerEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
@@ -38,9 +42,12 @@ import org.bukkit.event.player.PlayerLoginEvent;
 import org.bukkit.event.player.PlayerMoveEvent;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.FireworkMeta;
+import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.plugin.java.JavaPlugin;
+import org.bukkit.potion.Potion;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
+import org.bukkit.scheduler.BukkitRunnable;
 import org.bukkit.util.Vector;
 
 public final class Main extends JavaPlugin implements Listener 
@@ -64,7 +71,8 @@ public final class Main extends JavaPlugin implements Listener
 	
 	public Map<UUID, Block> CaneBlocks = new HashMap<>(); 
 	public Map<UUID, Location> PlayerTeleportLocations = new HashMap<>(); 
-	
+	public Map<UUID, Boolean> UnthankfulList = new HashMap<>();
+        
 	@Override
 	//Whenever we enable the plugin for the first time, this method will be called
  	public void onEnable() 
@@ -415,6 +423,7 @@ public final class Main extends JavaPlugin implements Listener
 		}*/
 	}
 	
+        
 	@EventHandler
 	public void playerHitPlayerEvent(EntityDamageByEntityEvent event) 
 	{
@@ -505,10 +514,57 @@ public final class Main extends JavaPlugin implements Listener
 						((LivingEntity) victim).addPotionEffect(new PotionEffect(PotionEffectType.BLINDNESS, 20 * 10, 0));
 					}
 				}
-
+                                
+                                /**
+                                 *              GASHA SEED
+                                 */
+                                if (heldSaplingType == DARK_OAK_SAPLING)
+                                {
+                                    player.getInventory().removeItem(new ItemStack(Material.SAPLING, 1, DARK_OAK_SAPLING));
+                                    if (victim instanceof Player)
+                                    {
+                                        final Player sickBoy = ((Player) victim);
+                                        ((Player) victim).getInventory().addItem(new ItemStack(Material.RED_ROSE, 1));
+                                        Bukkit.broadcastMessage(ChatColor.AQUA + ((Player) victim).getDisplayName() + " has the poppy virus!");
+                                        ((Player) victim).sendMessage("You got the poppy virus! Good luck and breathing will come to you only if you say \"Thank Pico\".");      
+                                        UnthankfulList.put(((Player) victim).getUniqueId(), Boolean.TRUE);
+                                        
+                                        Bukkit.getScheduler().runTaskAsynchronously(this, new Runnable() {
+                                            @Override
+                                            public void run() {
+                                                while (UnthankfulList.containsKey(sickBoy.getUniqueId())) {
+                                                    sickBoy.getInventory().addItem(new ItemStack(Material.RED_ROSE, 1));
+                                                    try {
+                                                        Thread.sleep(1000);
+                                                    } catch (InterruptedException ex) {
+                                                        Logger.getLogger(Main.class.getName()).log(Level.SEVERE, null, ex);
+                                                    }
+                                                }
+                                            }
+                                         } );
+                                    }
+                                }
 			}
 		}
 	}
+        
+                                                @EventHandler
+                                                public void goodBoy(AsyncPlayerChatEvent e) {
+                                                Player p = e.getPlayer();
+                                                if(e.getMessage().equalsIgnoreCase("Thank Pico") && UnthankfulList.containsKey(p.getUniqueId())) {
+                                                    ItemStack coolRod = new ItemStack(Material.FISHING_ROD);
+                                                    ItemMeta godRod = coolRod.getItemMeta();
+                                                    godRod.setDisplayName(ChatColor.DARK_RED + "Canne à pêche de Boatdad");
+                                                    godRod.addEnchant(Enchantment.LUCK, 3, true);
+                                                    godRod.addEnchant(Enchantment.DURABILITY, 3, true);
+                                                    godRod.addEnchant(Enchantment.LURE, 3, true);
+                                                    coolRod.setItemMeta(godRod);
+                                                    p.getInventory().addItem(coolRod);
+                                                    
+                                                    UnthankfulList.remove(p.getUniqueId());
+                                                    //Potion coolBreath = new Potion(c);
+                                                }
+                                        }
 	/*
 	@SuppressWarnings("deprecation")
 	@EventHandler
