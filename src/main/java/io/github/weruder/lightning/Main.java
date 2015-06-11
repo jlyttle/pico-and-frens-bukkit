@@ -558,7 +558,10 @@ public final class Main extends JavaPlugin implements Listener
 			}
 		}
 	}
-        
+                                                /**
+                                                 *  Santa's naughty list
+                                                 *  checks chat to see if rudeboi has thanked Pico
+                                                 */
                                                 @EventHandler
                                                 public void goodBoy(AsyncPlayerChatEvent e) {
                                                 Player p = e.getPlayer();
@@ -580,36 +583,27 @@ public final class Main extends JavaPlugin implements Listener
                                                     
                                                 }
                                         }
-                                                
+                /**
+                 *  "Cheaters not using Gale Seeds" check
+                 *  This is used to check if a teleport is used going somewhere other than the Nexon and removing the player from the
+                 *  hashmap. This is meant for cases where a chat command or command block is used, but this monitors all teleports regardless
+                 *  of cause.
+                 */                                
                 @EventHandler
                 public void onTeleport(PlayerTeleportEvent tp)
                 {
                     final Player moveBoy = tp.getPlayer();
-                    final World world = moveBoy.getWorld();
-                    final Location nexon = new Location(world, 655.5, 107.0, 497.5);
-                    if ((tp.getTo() != nexon.getChunk()) && PlayerTeleportLocations.containsKey(moveBoy.getUniqueId())) {
+                    final World worl = moveBoy.getWorld();
+                    final Location nexon = new Location(worl, 655.5, 107.0, 497.5);
+                    if (tp.getTo().getChunk() != nexon.getChunk() && PlayerTeleportLocations.containsKey(moveBoy.getUniqueId())) {
                         PlayerTeleportLocations.remove(moveBoy.getUniqueId());
                     }
                 }
                 // This would probably remove the key from hashmap if the player tp's from another world
                 // (need to specify which world rather than getting current world)
-	/*
-	@SuppressWarnings("deprecation")
-	@EventHandler
-	public void onPlayerInteractBlock(PlayerInteractEvent event) {
-	    Player player = event.getPlayer();
-	    if (player.getItemInHand().getType() == Material.FISHING_ROD) {
-	        // Creates a bolt of lightning at a given location. In this case, that location is where the player is looking.
-	        // Can only create lightning up to 200 blocks away.
-	        player.getWorld().strikeLightning(player.getTargetBlock(null, 200).getLocation());
-	    }
-	}
-	@EventHandler
-	public void onPlayerInteract(PlayerInteractEvent event) {
-		if (event.getAction() == Action.RIGHT_CLICK_BLOCK) {
-			event.getPlayer().sendMessage(ChatColor.AQUA + "You clicked a " + ChatColor.BOLD + event.getClickedBlock().getType().toString().toLowerCase().replace("_", ""));
-		}
-	}*/
+
+                
+                
 }
 
 
