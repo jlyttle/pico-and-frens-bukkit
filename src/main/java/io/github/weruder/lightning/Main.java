@@ -73,6 +73,8 @@ public final class Main extends JavaPlugin implements Listener {
     public final byte ACACIA_SAPLING = (byte) 4;
     public final byte DARK_OAK_SAPLING = (byte) 5;
 
+    public final byte ORANGE_STAINED_GLASS = (byte) 1;
+
     public final byte CHISELED_STONE = (byte) 3;
     public final Random rand = new Random();
 
@@ -201,28 +203,26 @@ public final class Main extends JavaPlugin implements Listener {
             /**
              * Rod of Seasons
              */
-            if (heldDyeColor == GREEN_DYE && (event.getAction().equals(Action.RIGHT_CLICK_AIR))) 
-            {
-                player.getLocation().getBlock().setBiome(Biome.TAIGA);
+            if (heldDyeColor == GREEN_DYE && (event.getAction().equals(Action.RIGHT_CLICK_AIR))) {
+                player.getLocation().add(0, -1, 0).getBlock().setBiome(Biome.TAIGA);
                 player.sendMessage(ChatColor.WHITE + "TAIGA");
-                
+
                 // for future reference, it might be handy to set up an if else ladder to cycle through the biome list.
-                
                 //File chunk = new File("Chunk.txt"); //Chunk.txt will store the chunk in which it is right clicked
                 //File biome = new File("Biome.txt"); //Biome.txt will store the biome in which it is right clicked (in order to easily restore)
                 //if (chunk.exists()) {
-                    //try {
-                        //PrintStream file1 = new PrintStream(new FileOutputStream(chunk));
-                        //file1.println(player.getLocation().getChunk()); // if chunk.txt exists, store the current chunk on a new line
-                    //} catch (FileNotFoundException ex) {
-                        //Logger.getLogger(Main.class.getName()).log(Level.SEVERE, null, ex);
-                    //}
-                    //try {
-                        //PrintStream file2 = new PrintStream(new FileOutputStream(biome));
-                        //file2.println(player.getLocation().getBiome());
-                    //} catch (FileNotFoundException ex) {
-                        //Logger.getLogger(Main.class.getName()).log(Level.SEVERE, null, ex);
-                    //}
+                //try {
+                //PrintStream file1 = new PrintStream(new FileOutputStream(chunk));
+                //file1.println(player.getLocation().getChunk()); // if chunk.txt exists, store the current chunk on a new line
+                //} catch (FileNotFoundException ex) {
+                //Logger.getLogger(Main.class.getName()).log(Level.SEVERE, null, ex);
+                //}
+                //try {
+                //PrintStream file2 = new PrintStream(new FileOutputStream(biome));
+                //file2.println(player.getLocation().getBiome());
+                //} catch (FileNotFoundException ex) {
+                //Logger.getLogger(Main.class.getName()).log(Level.SEVERE, null, ex);
+                //}
                 //}
             }
 
@@ -273,9 +273,6 @@ public final class Main extends JavaPlugin implements Listener {
                     PlayerTeleportLocations.put(player.getUniqueId(), player.getLocation());
                     player.teleport(new Location(world, 655.5, 107.0, 497.5));
                 }
-                // We want the player to be removed from the hashmap if a command block teleport is used, so that next time the player uses
-                //the seed, they go to the nexon. 
-
                 world.playSound(player.getLocation(), Sound.ENDERMAN_TELEPORT, 3F, 1F);
             }
 
@@ -385,6 +382,20 @@ public final class Main extends JavaPlugin implements Listener {
                     player.sendMessage(ChatColor.WHITE + "Thanks fam. ~" + P1.getDisplayName());
                 }
 
+            }
+        }
+        
+        /**
+         * SEED GLASS STAINING
+         */
+        
+        if (heldItem.getType() == Material.SAPLING && event.getAction().equals(Action.RIGHT_CLICK_BLOCK)) 
+        {
+            byte heldSaplingType = heldItem.getData().getData();
+            if (heldSaplingType == JUNGLE_SAPLING)
+            {
+                targetBlock.setData(ORANGE_STAINED_GLASS);
+                world.playSound(player.getLocation(), Sound.ENDERMAN_IDLE, 3F, 1F);
             }
         }
 
@@ -568,8 +579,6 @@ public final class Main extends JavaPlugin implements Listener {
     }
 
     // Need to specify which world rather than getting current world. same applies to Gale seed portion
-    
-    
     /*
      *   SUBROSIA MOD
      */
@@ -577,20 +586,20 @@ public final class Main extends JavaPlugin implements Listener {
     public void onBed(PlayerBedEnterEvent be) {
         final Player sleepBoy = be.getPlayer();
         heck = Bukkit.getWorld("Subrosia");
-        Location inception = new Location(heck, 0, 0, 0);
+        //Location inception = new Location(heck, 0, 0, 0);
         if (sleepBoy.isSleeping() && (sleepBoy.getWorld() == heck)) {
-            be.getBed().getLocation(inception);
+            //inception = be.getBed().getLocation();
             be.getBed().breakNaturally();
             sleepBoy.getInventory().addItem(new ItemStack(Material.IRON_SPADE, 1));
             sleepBoy.sendMessage(ChatColor.DARK_RED + "Subrosian tradition dictates that one must not sleep, only dig for ore chunks. Get to work.");
         }
         try {
-            Thread.sleep(2000); // Wait two seconds after getting in bed and progress
+            Thread.sleep(1000); // Wait one second after getting in bed and progress
         } catch (InterruptedException ex) {
             Logger.getLogger(Main.class.getName()).log(Level.SEVERE, null, ex);
         }
         if (heck == null) {
-            Bukkit.broadcastMessage(ChatColor.DARK_RED + "You can hear a rumbling sound from far away, as though a drill has pierced the heavens.");
+            sleepBoy.sendMessage(ChatColor.DARK_RED + "You can hear a rumbling sound from far away, as though a drill has pierced the heavens.");
             WorldCreator subrosia = new WorldCreator("Subrosia");
             subrosia.type(WorldType.AMPLIFIED);
             subrosia.environment(World.Environment.NORMAL);
@@ -599,17 +608,19 @@ public final class Main extends JavaPlugin implements Listener {
             heck = subrosia.createWorld(); //Create amped world with the name subrosia. This only needs to happen once in our case.
             heck.setDifficulty(Difficulty.PEACEFUL);
             heck.setSpawnLocation(30, 200, 50);
-            Bukkit.broadcastMessage(ChatColor.DARK_RED + "The rumbling has stopped.");
+            sleepBoy.sendMessage(ChatColor.DARK_RED + "The rumbling has stopped.");
         } else {
             // teleport the player to subrosia
             sleepBoy.setGameMode(GameMode.CREATIVE);
             sleepBoy.teleport(new Location(Bukkit.getWorld("Subrosia"), 30, 200, 50));
             Bukkit.broadcastMessage(ChatColor.DARK_RED + "Welcome to Subrosia!");
-            Bukkit.getScheduler().runTaskLaterAsynchronously(this, new Runnable() {
-                public World world = Bukkit.getWorld(getName());
-
-                public void run() {
-                    if (world.getName().contains("world") && (world.getFullTime() <= 12000)) {
+            Bukkit.getScheduler().runTaskLaterAsynchronously(this, new Runnable() 
+            {
+                public World world = Bukkit.getWorld("world");
+                @Override
+                public void run() 
+                {
+                    if (world.getFullTime() <= 12000) {
                         sleepBoy.teleport(sleepBoy.getBedSpawnLocation());
                         sleepBoy.setGameMode(GameMode.SURVIVAL);
                         sleepBoy.sendMessage(ChatColor.WHITE + "W A K E B O Y S");
