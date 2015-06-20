@@ -204,7 +204,9 @@ public final class Main extends JavaPlugin implements Listener {
              * Rod of Seasons
              */
             if (heldDyeColor == GREEN_DYE && (event.getAction().equals(Action.RIGHT_CLICK_AIR))) {
+                player.sendMessage(player.getLocation().add(0, -1, 0).getBlock().getBiome().toString()); //debug
                 player.getLocation().add(0, -1, 0).getBlock().setBiome(Biome.TAIGA);
+                player.sendMessage(player.getLocation().add(0, -1, 0).getBlock().getBiome().toString()); //debug
                 player.sendMessage(ChatColor.WHITE + "TAIGA");
 
                 // for future reference, it might be handy to set up an if else ladder to cycle through the biome list.
@@ -392,7 +394,7 @@ public final class Main extends JavaPlugin implements Listener {
         if (heldItem.getType() == Material.SAPLING && event.getAction().equals(Action.RIGHT_CLICK_BLOCK)) 
         {
             byte heldSaplingType = heldItem.getData().getData();
-            if (heldSaplingType == JUNGLE_SAPLING)
+            if (heldSaplingType == JUNGLE_SAPLING && ((targetBlock.getType() == Material.GLASS) || (targetBlock.getType() == Material.STAINED_GLASS_PANE)))
             {
                 targetBlock.setData(ORANGE_STAINED_GLASS);
                 world.playSound(player.getLocation(), Sound.ENDERMAN_IDLE, 3F, 1F);
@@ -620,7 +622,8 @@ public final class Main extends JavaPlugin implements Listener {
                 @Override
                 public void run() 
                 {
-                    if (world.getFullTime() <= 12000) {
+                    if (getServer().getWorld("world").getTime() <= 12000) 
+                    {
                         sleepBoy.teleport(sleepBoy.getBedSpawnLocation());
                         sleepBoy.setGameMode(GameMode.SURVIVAL);
                         sleepBoy.sendMessage(ChatColor.WHITE + "W A K E B O Y S");
