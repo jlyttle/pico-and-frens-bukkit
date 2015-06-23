@@ -49,6 +49,7 @@ import org.bukkit.event.player.PlayerLoginEvent;
 import org.bukkit.event.player.PlayerMoveEvent;
 import org.bukkit.event.player.PlayerTeleportEvent;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.inventory.ShapelessRecipe;
 import org.bukkit.inventory.meta.FireworkMeta;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.plugin.java.JavaPlugin;
@@ -86,9 +87,20 @@ public final class Main extends JavaPlugin implements Listener {
 
     @Override
     //Whenever we enable the plugin for the first time, this method will be called
-    public void onEnable() {
+    public void onEnable() 
+    {
         //We need to make sure that our plugin manager knows that we're listening for events, so we call this method
         getServer().getPluginManager().registerEvents(this, this);
+        
+        /*
+         * YEE EXPLOSIVE MOD
+         * // adds a recipe for two flowers + water glass = tnt
+         */
+        ItemStack aggro = new ItemStack(Material.TNT, 1);
+        ShapelessRecipe recipe = new ShapelessRecipe(aggro)
+                .addIngredient(2, Material.RED_ROSE)
+                .addIngredient(1, Material.WATER_BUCKET);
+        Bukkit.addRecipe(recipe);
     }
 
     @EventHandler
@@ -201,7 +213,11 @@ public final class Main extends JavaPlugin implements Listener {
             }
 
             /**
-             * Rod of Seasons
+             * Rod of Seasons //Currently this mod is not working on the server,
+             * possibly due to outdated server jar. //The debug statements show
+             * that setBiome works correctly, but minecraft in-game doesn't
+             * change the biome. //This is also confirmed when we tried to set
+             * biome using worldedit.
              */
             if (heldDyeColor == GREEN_DYE && (event.getAction().equals(Action.RIGHT_CLICK_AIR))) {
                 player.sendMessage(player.getLocation().add(0, -1, 0).getBlock().getBiome().toString()); //debug
@@ -386,17 +402,16 @@ public final class Main extends JavaPlugin implements Listener {
 
             }
         }
-        
+
         /**
          * SEED GLASS STAINING
          */
-        
-        if (heldItem.getType() == Material.SAPLING && event.getAction().equals(Action.RIGHT_CLICK_BLOCK)) 
-        {
+        if (heldItem.getType() == Material.SAPLING && event.getAction().equals(Action.RIGHT_CLICK_BLOCK)) {
+            Block rightClickBlock = event.getClickedBlock();
             byte heldSaplingType = heldItem.getData().getData();
-            if (heldSaplingType == JUNGLE_SAPLING && ((targetBlock.getType() == Material.GLASS) || (targetBlock.getType() == Material.STAINED_GLASS_PANE)))
-            {
-                targetBlock.setData(ORANGE_STAINED_GLASS);
+            if (heldSaplingType == JUNGLE_SAPLING && ((rightClickBlock.getType() == Material.GLASS) || (rightClickBlock.getType() == Material.STAINED_GLASS_PANE))) {
+                rightClickBlock.setType(Material.STAINED_GLASS);
+                rightClickBlock.setData(ORANGE_STAINED_GLASS);
                 world.playSound(player.getLocation(), Sound.ENDERMAN_IDLE, 3F, 1F);
             }
         }
@@ -581,8 +596,10 @@ public final class Main extends JavaPlugin implements Listener {
     }
 
     // Need to specify which world rather than getting current world. same applies to Gale seed portion
+
     /*
      *   SUBROSIA MOD
+     * // Look into loading the world on server start
      */
     @EventHandler
     public void onBed(PlayerBedEnterEvent be) {
@@ -600,7 +617,8 @@ public final class Main extends JavaPlugin implements Listener {
         } catch (InterruptedException ex) {
             Logger.getLogger(Main.class.getName()).log(Level.SEVERE, null, ex);
         }
-        if (heck == null) {
+        if (heck == null) //heck returns null if the world is not loaded yet, so we need to find a way to load it on server start.
+        {
             sleepBoy.sendMessage(ChatColor.DARK_RED + "You can hear a rumbling sound from far away, as though a drill has pierced the heavens.");
             WorldCreator subrosia = new WorldCreator("Subrosia");
             subrosia.type(WorldType.AMPLIFIED);
@@ -616,21 +634,31 @@ public final class Main extends JavaPlugin implements Listener {
             sleepBoy.setGameMode(GameMode.CREATIVE);
             sleepBoy.teleport(new Location(Bukkit.getWorld("Subrosia"), 30, 200, 50));
             Bukkit.broadcastMessage(ChatColor.DARK_RED + "Welcome to Subrosia!");
-            Bukkit.getScheduler().runTaskLaterAsynchronously(this, new Runnable() 
-            {
-                public World world = Bukkit.getWorld("world");
-                @Override
-                public void run() 
-                {
-                    if (getServer().getWorld("world").getTime() <= 12000) 
-                    {
-                        sleepBoy.teleport(sleepBoy.getBedSpawnLocation());
-                        sleepBoy.setGameMode(GameMode.SURVIVAL);
-                        sleepBoy.sendMessage(ChatColor.WHITE + "W A K E B O Y S");
-                    }
-                }
-            }, 600);
         }
+
+        Bukkit.getScheduler().runTaskLaterAsynchronously(this, new Runnable() {
+            public World world = Bukkit.getWorld("world");
+            public World heck = Bukkit.getWorld("Subrosia");
+            
+            @Override
+            public void run() {
+                if (sleepBoy.getWorld() == heck && world.getTime() <= 12000) {
+                    try 
+                    { 
+                        sleepBoy.teleport(sleepBoy.getBedSpawnLocation());
+                    }
+                    finally
+                    {
+                        if (sleepBoy.getBedSpawnLocation() == null)
+                        {
+                           sleepBoy.teleport(world.getSpawnLocation()); 
+                        }
+                    }
+                    sleepBoy.setGameMode(GameMode.SURVIVAL);
+                    sleepBoy.sendMessage(ChatColor.WHITE + "W A K E B O Y S");
+                }
+            }
+        }, 600);
     }
 
 }
