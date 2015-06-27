@@ -406,11 +406,23 @@ public final class Main extends JavaPlugin implements Listener {
         /**
          * SEED GLASS STAINING
          */
-        if (heldItem.getType() == Material.SAPLING && event.getAction().equals(Action.RIGHT_CLICK_BLOCK)) {
-            Block rightClickBlock = event.getClickedBlock();
-            byte heldSaplingType = heldItem.getData().getData();
-            if (heldSaplingType == JUNGLE_SAPLING && ((rightClickBlock.getType() == Material.GLASS) || (rightClickBlock.getType() == Material.STAINED_GLASS_PANE))) {
-                //rightClickBlock.setType(Material.STAINED_GLASS);
+        Block rightClickBlock = event.getClickedBlock();
+        byte heldSaplingType = heldItem.getData().getData();
+        if (heldItem.getType() == Material.SAPLING && event.getAction().equals(Action.RIGHT_CLICK_BLOCK) && ((rightClickBlock.getType() == Material.GLASS)
+                || (rightClickBlock.getType() == Material.STAINED_GLASS_PANE) 
+                || (rightClickBlock.getType() == Material.STAINED_GLASS) 
+                || (rightClickBlock.getType() == Material.THIN_GLASS)))
+        {
+            if (heldSaplingType == JUNGLE_SAPLING) 
+            {
+                if (rightClickBlock.getType() == Material.GLASS)
+                {
+                    rightClickBlock.setType(Material.STAINED_GLASS);
+                }
+                if (rightClickBlock.getType() == Material.THIN_GLASS)
+                {
+                    rightClickBlock.setType(Material.STAINED_GLASS_PANE);
+                }
                 rightClickBlock.setData(ORANGE_STAINED_GLASS);
                 world.playSound(player.getLocation(), Sound.ENDERMAN_IDLE, 3F, 1F);
             }
