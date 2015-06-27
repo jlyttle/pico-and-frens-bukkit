@@ -643,7 +643,7 @@ public final class Main extends JavaPlugin implements Listener {
             
             @Override
             public void run() {
-                if (sleepBoy.isSleeping() && sleepBoy.getWorld() == heck && world.getTime() <= 12000) {
+                if (sleepBoy.getWorld() == heck && world.getTime() <= 12000) {
                     try 
                     { 
                         sleepBoy.teleport(sleepBoy.getBedSpawnLocation());
