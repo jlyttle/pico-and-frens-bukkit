@@ -415,11 +415,11 @@ public final class Main extends JavaPlugin implements Listener {
         {
             if (heldSaplingType == JUNGLE_SAPLING) 
             {
-                if (rightClickBlock.getType() == Material.GLASS)
+                while (rightClickBlock.getType() == Material.GLASS)
                 {
                     rightClickBlock.setType(Material.STAINED_GLASS);
                 }
-                if (rightClickBlock.getType() == Material.THIN_GLASS)
+                while (rightClickBlock.getType() == Material.THIN_GLASS)
                 {
                     rightClickBlock.setType(Material.STAINED_GLASS_PANE);
                 }
