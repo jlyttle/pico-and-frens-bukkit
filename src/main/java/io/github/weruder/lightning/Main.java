@@ -410,7 +410,7 @@ public final class Main extends JavaPlugin implements Listener {
             Block rightClickBlock = event.getClickedBlock();
             byte heldSaplingType = heldItem.getData().getData();
             if (heldSaplingType == JUNGLE_SAPLING && ((rightClickBlock.getType() == Material.GLASS) || (rightClickBlock.getType() == Material.STAINED_GLASS_PANE))) {
-                rightClickBlock.setType(Material.STAINED_GLASS);
+                //rightClickBlock.setType(Material.STAINED_GLASS);
                 rightClickBlock.setData(ORANGE_STAINED_GLASS);
                 world.playSound(player.getLocation(), Sound.ENDERMAN_IDLE, 3F, 1F);
             }
@@ -606,7 +606,8 @@ public final class Main extends JavaPlugin implements Listener {
         final Player sleepBoy = be.getPlayer();
         heck = Bukkit.getWorld("Subrosia");
         //Location inception = new Location(heck, 0, 0, 0);
-        if (sleepBoy.isSleeping() && (sleepBoy.getWorld() == heck)) {
+        if (sleepBoy.isSleeping() && sleepBoy.getWorld() == heck) 
+        {
             //inception = be.getBed().getLocation();
             be.getBed().breakNaturally();
             sleepBoy.getInventory().addItem(new ItemStack(Material.IRON_SPADE, 1));
@@ -642,7 +643,7 @@ public final class Main extends JavaPlugin implements Listener {
             
             @Override
             public void run() {
-                if (sleepBoy.getWorld() == heck && world.getTime() <= 12000) {
+                if (sleepBoy.isSleeping() && sleepBoy.getWorld() == heck && world.getTime() <= 12000) {
                     try 
                     { 
                         sleepBoy.teleport(sleepBoy.getBedSpawnLocation());
