@@ -87,11 +87,11 @@ public final class Main extends JavaPlugin implements Listener {
 
     @Override
     //Whenever we enable the plugin for the first time, this method will be called
-    public void onEnable() 
+    public void onEnable()
     {
         //We need to make sure that our plugin manager knows that we're listening for events, so we call this method
         getServer().getPluginManager().registerEvents(this, this);
-        
+
         /*
          * YEE EXPLOSIVE MOD
          * // adds a recipe for two flowers + water glass = tnt
@@ -113,6 +113,7 @@ public final class Main extends JavaPlugin implements Listener {
     @EventHandler
     public void onPlayerMove(PlayerMoveEvent event) {
         final Player player = event.getPlayer();
+        //Do a check for null first, that way you can ensure that you don't cause a null reference exeption when calling .getType()
         if (player.getEquipment().getBoots() != null) {
             if (player.getEquipment().getBoots().getType() == Material.GOLD_BOOTS) {
                 final Material standingOn = player.getLocation().add(0, -1, 0).getBlock().getType();  // gets the material of block the player is standing on and holds it in variable standingOn of type Material
@@ -200,7 +201,7 @@ public final class Main extends JavaPlugin implements Listener {
                 //We need to get the data for the block before we change it, so we create a few variables.
                 Material blockMaterial = targetBlock.getType();
                 byte blockType = targetBlock.getData();
-                //This line makes it so that you only swap with Chiseled Stone Bricks. If you replace it with the 
+                //This line makes it so that you only swap with Chiseled Stone Bricks. If you replace it with the
                 //following line, it will swap it with most blocks outside of liquids, air, and bedrock
                 //if (!targetBlock.isEmpty() && !targetBlock.isLiquid() && blockMaterial != Material.BEDROCK)
                 if (blockMaterial == Material.SMOOTH_BRICK && blockType == CHISELED_STONE) {
@@ -409,11 +410,11 @@ public final class Main extends JavaPlugin implements Listener {
         Block rightClickBlock = event.getClickedBlock();
         byte heldSaplingType = heldItem.getData().getData();
         if (heldItem.getType() == Material.SAPLING && event.getAction().equals(Action.RIGHT_CLICK_BLOCK) && ((rightClickBlock.getType() == Material.GLASS)
-                || (rightClickBlock.getType() == Material.STAINED_GLASS_PANE) 
-                || (rightClickBlock.getType() == Material.STAINED_GLASS) 
+                || (rightClickBlock.getType() == Material.STAINED_GLASS_PANE)
+                || (rightClickBlock.getType() == Material.STAINED_GLASS)
                 || (rightClickBlock.getType() == Material.THIN_GLASS)))
         {
-            if (heldSaplingType == JUNGLE_SAPLING) 
+            if (heldSaplingType == JUNGLE_SAPLING)
             {
                 while (rightClickBlock.getType() == Material.GLASS)
                 {
@@ -454,9 +455,9 @@ public final class Main extends JavaPlugin implements Listener {
          {
          if(player.getItemInHand().getType() == Material.STICK)
          {
-         Fireball fire = player.getWorld().spawn(event.getPlayer().getLocation().add(new Vector(0.0D, 1.0D, 0.0D)), Fireball.class); 
-         fire.setFireTicks(0); 
-         fire.setShooter(player); 
+         Fireball fire = player.getWorld().spawn(event.getPlayer().getLocation().add(new Vector(0.0D, 1.0D, 0.0D)), Fireball.class);
+         fire.setFireTicks(0);
+         fire.setShooter(player);
          }
          }*/
     }
@@ -618,7 +619,7 @@ public final class Main extends JavaPlugin implements Listener {
         final Player sleepBoy = be.getPlayer();
         heck = Bukkit.getWorld("Subrosia");
         //Location inception = new Location(heck, 0, 0, 0);
-        if (sleepBoy.isSleeping() && sleepBoy.getWorld() == heck) 
+        if (sleepBoy.isSleeping() && sleepBoy.getWorld() == heck)
         {
             //inception = be.getBed().getLocation();
             be.getBed().breakNaturally();
@@ -652,19 +653,19 @@ public final class Main extends JavaPlugin implements Listener {
         Bukkit.getScheduler().runTaskLaterAsynchronously(this, new Runnable() {
             public World world = Bukkit.getWorld("world");
             public World heck = Bukkit.getWorld("Subrosia");
-            
+
             @Override
             public void run() {
                 if (sleepBoy.getWorld() == heck && world.getTime() <= 12000) {
-                    try 
-                    { 
+                    try
+                    {
                         sleepBoy.teleport(sleepBoy.getBedSpawnLocation());
                     }
                     finally
                     {
                         if (sleepBoy.getBedSpawnLocation() == null)
                         {
-                           sleepBoy.teleport(world.getSpawnLocation()); 
+                           sleepBoy.teleport(world.getSpawnLocation());
                         }
                     }
                     sleepBoy.setGameMode(GameMode.SURVIVAL);
