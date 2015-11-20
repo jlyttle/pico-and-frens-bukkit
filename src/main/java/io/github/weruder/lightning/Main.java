@@ -614,6 +614,7 @@ public final class Main extends JavaPlugin implements Listener {
      *   SUBROSIA MOD
      * // Look into loading the world on server start
      */
+    /*
     @EventHandler
     public void onBed(PlayerBedEnterEvent be) {
         final Player sleepBoy = be.getPlayer();
@@ -673,6 +674,6 @@ public final class Main extends JavaPlugin implements Listener {
                 }
             }
         }, 600);
-    }
+    }*/
 
 }
