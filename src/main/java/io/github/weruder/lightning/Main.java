@@ -31,17 +31,21 @@ import org.bukkit.block.Block;
 import org.bukkit.block.BlockFace;
 import org.bukkit.enchantments.Enchantment;
 import org.bukkit.entity.Entity;
+import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Fireball;
 import org.bukkit.entity.Firework;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
 import org.bukkit.entity.ThrownExpBottle;
+import org.bukkit.event.Event;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.Action;
 import org.bukkit.event.block.BlockBreakEvent;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
+import org.bukkit.event.entity.EntityDamageEvent;
+import org.bukkit.event.entity.EntityDamageEvent.DamageCause;
 import org.bukkit.event.player.AsyncPlayerChatEvent;
 import org.bukkit.event.player.PlayerBedEnterEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
@@ -214,35 +218,21 @@ public final class Main extends JavaPlugin implements Listener {
             }
 
             /**
-             * Rod of Seasons //Currently this mod is not working on the server,
-             * possibly due to outdated server jar. //The debug statements show
-             * that setBiome works correctly, but minecraft in-game doesn't
-             * change the biome. //This is also confirmed when we tried to set
-             * biome using worldedit.
+             * SHINE
              */
-            if (heldDyeColor == GREEN_DYE && (event.getAction().equals(Action.RIGHT_CLICK_AIR))) {
-                player.sendMessage(player.getLocation().add(0, -1, 0).getBlock().getBiome().toString()); //debug
-                player.getLocation().add(0, -1, 0).getBlock().setBiome(Biome.TAIGA);
-                player.sendMessage(player.getLocation().add(0, -1, 0).getBlock().getBiome().toString()); //debug
-                player.sendMessage(ChatColor.WHITE + "TAIGA");
-
-                // for future reference, it might be handy to set up an if else ladder to cycle through the biome list.
-                //File chunk = new File("Chunk.txt"); //Chunk.txt will store the chunk in which it is right clicked
-                //File biome = new File("Biome.txt"); //Biome.txt will store the biome in which it is right clicked (in order to easily restore)
-                //if (chunk.exists()) {
-                //try {
-                //PrintStream file1 = new PrintStream(new FileOutputStream(chunk));
-                //file1.println(player.getLocation().getChunk()); // if chunk.txt exists, store the current chunk on a new line
-                //} catch (FileNotFoundException ex) {
-                //Logger.getLogger(Main.class.getName()).log(Level.SEVERE, null, ex);
-                //}
-                //try {
-                //PrintStream file2 = new PrintStream(new FileOutputStream(biome));
-                //file2.println(player.getLocation().getBiome());
-                //} catch (FileNotFoundException ex) {
-                //Logger.getLogger(Main.class.getName()).log(Level.SEVERE, null, ex);
-                //}
-                //}
+            if (heldDyeColor == GREEN_DYE && ((Entity) player).isOnGround()) {
+                   Entity expBubble = player.getWorld().spawnEntity(player.getLocation(), EntityType.EXPERIENCE_ORB);
+                   List<Entity> nearbyEntities = expBubble.getNearbyEntities(1.0f, 1.0f, 1.0f);
+                   expBubble.remove();
+                   for(int i = 0; i < nearbyEntities.size(); i++)
+                   {
+                	   Entity entity = nearbyEntities.get(i);
+                	   if(entity != player)
+                	   {
+                		   entity.setFallDistance(50.0f);
+                		   entity.setVelocity(new Vector(0.0f, 0.1f, 0.0f));
+                	   }
+                   }
             }
 
             /**
@@ -450,6 +440,7 @@ public final class Main extends JavaPlugin implements Listener {
                 }
             }, 10); //Change this number if you want to make the wait time longer or shorter
         }
+
         /*
          if(event.getAction().equals(Action.RIGHT_CLICK_AIR))
          {
@@ -607,7 +598,31 @@ public final class Main extends JavaPlugin implements Listener {
             PlayerTeleportLocations.remove(moveBoy.getUniqueId());
         }
     }
+    
+    //From https://github.com/MinecraftForge/MCPBukkit/blob/master/src/org/bukkit/craftbukkit/event/CraftEventFactory.java
+    public static EntityDamageEvent callEntityDamageEvent(Entity damager, Entity damagee, DamageCause cause, double damage) 
+    {
+    	  EntityDamageEvent event;
+    	  if (damager != null) {
+    	  event = new EntityDamageByEntityEvent(damager, damagee, cause, damage);
+    	  } else {
+    	  event = new EntityDamageEvent(damagee, cause, damage);
+    	  }
+    	  callEvent(event);
+    	  if (!event.isCancelled()) {
+    	  event.getEntity().setLastDamageCause(event);
+    	  }
+    	  return event;
+    }
 
+    //From https://github.com/MinecraftForge/MCPBukkit/blob/master/src/org/bukkit/craftbukkit/event/CraftEventFactory.java
+    public static <T extends Event> T callEvent(T event) 
+    { 
+    	Bukkit.getServer().getPluginManager().callEvent(event); 
+    	return event; 
+    } 
+
+    	  
     // Need to specify which world rather than getting current world. same applies to Gale seed portion
 
     /*
