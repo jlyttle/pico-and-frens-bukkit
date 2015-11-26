@@ -67,6 +67,7 @@ public final class Main extends JavaPlugin implements Listener {
 
     public final byte RED_DYE = (byte) 1;
     public final byte GREEN_DYE = (byte) 2;
+    public final byte LIGHT_BLUE_DYE = (byte) 3;
     public final byte BLUE_DYE = (byte) 4;
     public final byte CYAN_DYE = (byte) 6;
     public final byte ORANGE_DYE = (byte) 14;
@@ -220,19 +221,25 @@ public final class Main extends JavaPlugin implements Listener {
             /**
              * SHINE
              */
-            if (heldDyeColor == GREEN_DYE && ((Entity) player).isOnGround()) {
+            if (heldDyeColor == LIGHT_BLUE_DYE && ((Entity) player).isOnGround()) {
                    Entity expBubble = player.getWorld().spawnEntity(player.getLocation(), EntityType.EXPERIENCE_ORB);
-                   List<Entity> nearbyEntities = expBubble.getNearbyEntities(1.0f, 1.0f, 1.0f);
+                   List<Entity> nearbyEntities = expBubble.getNearbyEntities(2.0f, 2.0f, 2.0f);
                    expBubble.remove();
                    for(int i = 0; i < nearbyEntities.size(); i++)
                    {
                 	   Entity entity = nearbyEntities.get(i);
                 	   if(entity != player)
                 	   {
-                		   entity.setFallDistance(50.0f);
-                		   entity.setVelocity(new Vector(0.0f, 0.1f, 0.0f));
+                		   //entity.setFallDistance(50.0f);
+                                   Vector distanceToPlayer = (entity.getLocation().toVector().add(player.getLocation().toVector().multiply(-1)));
+                                   //Creates a vector using the enemy's location subtracting the player's location to get the displacement from yourself to the enemy.
+                                   Vector normalizedDistance = (distanceToPlayer.normalize());
+                                   //Ensures the magnitude of the vector will be 1.
+                		   entity.setVelocity(new Vector(normalizedDistance.getX(), 1, normalizedDistance.getZ()));
+                                   //Sets the enemy's velocity to send it (away) up and at an angle relative to the player.
                 	   }
                    }
+                   
             }
 
             /**
