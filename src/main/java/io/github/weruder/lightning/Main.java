@@ -83,6 +83,7 @@ public final class Main extends JavaPlugin implements Listener {
 
     public final byte CHISELED_STONE = (byte) 3;
     public final Random rand = new Random();
+    public final int TICKS_PER_SECOND = 20;
 
     public Map<UUID, Block> CaneBlocks = new HashMap<>();
     public Map<UUID, Location> PlayerTeleportLocations = new HashMap<>();
@@ -106,6 +107,21 @@ public final class Main extends JavaPlugin implements Listener {
                 .addIngredient(2, Material.RED_ROSE)
                 .addIngredient(1, Material.WATER_BUCKET);
         Bukkit.addRecipe(recipe);
+        Bukkit.getScheduler().runTaskAsynchronously(this, new Runnable() {
+                            @Override
+                            public void run() {
+                            while (true)
+                                    {
+                                        Bukkit.broadcastMessage("Test");
+                                try {
+                                    Thread.sleep(2000);
+                                } catch (InterruptedException ex) {
+                                    Logger.getLogger(Main.class.getName()).log(Level.SEVERE, null, ex);
+                                }
+                                    }
+                }
+                            }
+        );
     }
 
     @EventHandler
@@ -125,6 +141,23 @@ public final class Main extends JavaPlugin implements Listener {
                 if (standingOn != Material.AIR && standingOn != Material.POWERED_RAIL && standingOn != Material.WATER && standingOn != Material.LAVA) {
                     player.getLocation().getBlock().setType(Material.POWERED_RAIL);
                 }
+            }
+        }
+         /**
+         * BUNNY HOOD 
+         */
+        if (player.getEquipment().getHelmet() != null) 
+        {
+            if (player.getEquipment().getHelmet().getType() == Material.GOLD_HELMET) 
+            {
+                //final Material standingOn = player.getLocation().add(0, -1, 0).getBlock().getType();  // gets the material of block the player is standing on and holds it in variable standingOn of type Material
+                player.addPotionEffect(new PotionEffect(PotionEffectType.SPEED, TICKS_PER_SECOND * 3, 2));
+                
+                
+                //if (standingOn != Material.AIR && standingOn != Material.POWERED_RAIL && standingOn != Material.WATER && standingOn != Material.LAVA) 
+                //{
+                    //player.getLocation().getBlock().setType(Material.POWERED_RAIL);
+                //}
             }
         }
     }
@@ -298,8 +331,8 @@ public final class Main extends JavaPlugin implements Listener {
              */
             if (heldSaplingType == BIRCH_SAPLING) {
                 player.getInventory().removeItem(new ItemStack(Material.SAPLING, 1, BIRCH_SAPLING));
-                player.addPotionEffect(new PotionEffect(PotionEffectType.SPEED, 20 * 10, 4));
-                player.addPotionEffect(new PotionEffect(PotionEffectType.JUMP, 20 * 10, 2));
+                player.addPotionEffect(new PotionEffect(PotionEffectType.SPEED, TICKS_PER_SECOND * 10, 4));
+                player.addPotionEffect(new PotionEffect(PotionEffectType.JUMP, TICKS_PER_SECOND * 10, 2));
             }
 
             /**
@@ -426,7 +459,7 @@ public final class Main extends JavaPlugin implements Listener {
                 world.playSound(player.getLocation(), Sound.ENDERMAN_IDLE, 3F, 1F);
             }
         }
-
+        
         /**
          * ROC'S CAPE
          */
