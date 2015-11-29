@@ -67,9 +67,9 @@ public final class Main extends JavaPlugin implements Listener {
 
     public final byte RED_DYE = (byte) 1;
     public final byte GREEN_DYE = (byte) 2;
-    public final byte LIGHT_BLUE_DYE = (byte) 3;
     public final byte BLUE_DYE = (byte) 4;
     public final byte CYAN_DYE = (byte) 6;
+    public final byte LIGHT_BLUE_DYE = (byte) 12;
     public final byte ORANGE_DYE = (byte) 14;
 
     public final byte OAK_SAPLING = (byte) 0;
@@ -231,6 +231,7 @@ public final class Main extends JavaPlugin implements Listener {
                 	   if(entity != player)
                 	   {
                 		   //entity.setFallDistance(50.0f);
+                                  world.playSound(player.getLocation(), Sound.ENDERMAN_SCREAM, 3F, 1F);
                                    Vector distanceToPlayer = (entity.getLocation().toVector().add(player.getLocation().toVector().multiply(-1)));
                                    //Creates a vector using the enemy's location subtracting the player's location to get the displacement from yourself to the enemy.
                                    Vector normalizedDistance = (distanceToPlayer.normalize());
