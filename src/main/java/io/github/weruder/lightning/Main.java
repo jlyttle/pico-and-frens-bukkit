@@ -93,8 +93,7 @@ public final class Main extends JavaPlugin implements Listener {
 
     @Override
     //Whenever we enable the plugin for the first time, this method will be called
-    public void onEnable()
-    {
+    public void onEnable() {
         //We need to make sure that our plugin manager knows that we're listening for events, so we call this method
         getServer().getPluginManager().registerEvents(this, this);
 
@@ -107,20 +106,30 @@ public final class Main extends JavaPlugin implements Listener {
                 .addIngredient(2, Material.RED_ROSE)
                 .addIngredient(1, Material.WATER_BUCKET);
         Bukkit.addRecipe(recipe);
+        final Player[] playerList = Bukkit.getOnlinePlayers();
         Bukkit.getScheduler().runTaskAsynchronously(this, new Runnable() {
-                            @Override
-                            public void run() {
-                            while (true)
-                                    {
-                                        Bukkit.broadcastMessage("Test");
-                                try {
-                                    Thread.sleep(2000);
-                                } catch (InterruptedException ex) {
-                                    Logger.getLogger(Main.class.getName()).log(Level.SEVERE, null, ex);
-                                }
-                                    }
+            @Override
+            public void run() {
+                //While the server is running
+                //Bukkit.broadcastMessage("Test");
+                while (true) {
+                    //Bukkit.broadcastMessage("While loop");
+                    //for each of the online players        
+                    for (int i = 0; i < playerList.length; i++) {
+                        //if Player i is wearing a gold helmet
+                        if (playerList[i].getEquipment().getHelmet() != null && playerList[i].getEquipment().getHelmet().getType() == Material.GOLD_HELMET) {
+                            //Bukkit.broadcastMessage("for loop; " + (playerList[i].getEquipment().getHelmet().getDurability()));
+                            //playerList[i].getEquipment().getHelmet().setDurability((short) (playerList[i].getEquipment().getHelmet().getDurability() + (short) 1));
+                        }
+                    }
+                    try {
+                        Thread.sleep(2000);
+                    } catch (InterruptedException ex) {
+                        Logger.getLogger(Main.class.getName()).log(Level.SEVERE, null, ex);
+                    }
                 }
-                            }
+            }
+        }
         );
     }
 
@@ -143,20 +152,17 @@ public final class Main extends JavaPlugin implements Listener {
                 }
             }
         }
-         /**
-         * BUNNY HOOD 
+        /**
+         * BUNNY HOOD
          */
-        if (player.getEquipment().getHelmet() != null) 
-        {
-            if (player.getEquipment().getHelmet().getType() == Material.GOLD_HELMET) 
-            {
+        if (player.getEquipment().getHelmet() != null) {
+            if (player.getEquipment().getHelmet().getType() == Material.GOLD_HELMET) {
                 //final Material standingOn = player.getLocation().add(0, -1, 0).getBlock().getType();  // gets the material of block the player is standing on and holds it in variable standingOn of type Material
                 player.addPotionEffect(new PotionEffect(PotionEffectType.SPEED, TICKS_PER_SECOND * 3, 2));
-                
-                
+
                 //if (standingOn != Material.AIR && standingOn != Material.POWERED_RAIL && standingOn != Material.WATER && standingOn != Material.LAVA) 
                 //{
-                    //player.getLocation().getBlock().setType(Material.POWERED_RAIL);
+                //player.getLocation().getBlock().setType(Material.POWERED_RAIL);
                 //}
             }
         }
@@ -168,7 +174,7 @@ public final class Main extends JavaPlugin implements Listener {
             event.getBlock().getWorld().dropItemNaturally(event.getBlock().getLocation(), new ItemStack(Material.SAPLING, 1, (short) rand.nextInt(6)));
         }
     }
-
+    
     @SuppressWarnings("deprecation")
     @EventHandler(priority = EventPriority.HIGH)
     public void onPlayerUse(PlayerInteractEvent event) {
@@ -250,30 +256,66 @@ public final class Main extends JavaPlugin implements Listener {
                     playerLoc.getWorld().spawnFallingBlock(playerLoc.add(0, 1, 0), blockMaterial, blockType);
                 }
             }
-
+            
+            
+            /**
+             * HOOKSWITCH PT2
+             * Switch players around with the hookswitch
+             */
+            final int ATTACK_REACH = 100; // meters
+            if (heldDyeColor == CYAN_DYE && event.getAction().equals(Action.RIGHT_CLICK_AIR)){
+                Location observerPos = player.getEyeLocation();
+                Vector3D observerDir = new Vector3D(observerPos.getDirection());
+ 
+                Vector3D observerStart = new Vector3D(observerPos);
+                Vector3D observerEnd = observerStart.add(observerDir.multiply(ATTACK_REACH));
+                Entity warp = null;
+                 // Get nearby entities
+                for (Entity target : player.getWorld().getEntities()) {
+                    // Bounding box of the given player
+                    Vector3D targetPos = new Vector3D(target.getLocation());
+                    Vector3D minimum = targetPos.add(-0.5, 0, -0.5);
+                    Vector3D maximum = targetPos.add(0.5, 1.67, 0.5);
+                    
+                     if (target != player && hasIntersection(observerStart, observerEnd, minimum, maximum)) {
+                        if (warp == null || 
+                                warp.getLocation().distanceSquared(observerPos) > 
+                                target.getLocation().distanceSquared(observerPos)) {
+ 
+                            warp = target;
+                            
+                             // Hit the closest player
+                if (warp != null) {
+                    Location playerLocation = player.getLocation();
+                    Location targetLocation = target.getLocation();
+                    player.teleport(targetLocation);
+                    target.teleport(playerLocation);
+                }
+            }
+          }
+        }
+     }
             /**
              * SHINE
              */
             if (heldDyeColor == LIGHT_BLUE_DYE && ((Entity) player).isOnGround()) {
-                   Entity expBubble = player.getWorld().spawnEntity(player.getLocation(), EntityType.EXPERIENCE_ORB);
-                   List<Entity> nearbyEntities = expBubble.getNearbyEntities(2.0f, 2.0f, 2.0f);
-                   expBubble.remove();
-                   for(int i = 0; i < nearbyEntities.size(); i++)
-                   {
-                	   Entity entity = nearbyEntities.get(i);
-                	   if(entity != player)
-                	   {
-                		   //entity.setFallDistance(50.0f);
-                                  world.playSound(player.getLocation(), Sound.ENDERMAN_SCREAM, 3F, 1F);
-                                   Vector distanceToPlayer = (entity.getLocation().toVector().add(player.getLocation().toVector().multiply(-1)));
-                                   //Creates a vector using the enemy's location subtracting the player's location to get the displacement from yourself to the enemy.
-                                   Vector normalizedDistance = (distanceToPlayer.normalize());
-                                   //Ensures the magnitude of the vector will be 1.
-                		   entity.setVelocity(new Vector(normalizedDistance.getX(), 1, normalizedDistance.getZ()));
-                                   //Sets the enemy's velocity to send it (away) up and at an angle relative to the player.
-                	   }
-                   }
-                   
+                Entity expBubble = player.getWorld().spawnEntity(player.getLocation(), EntityType.EXPERIENCE_ORB);
+                List<Entity> nearbyEntities = expBubble.getNearbyEntities(2.0f, 2.0f, 2.0f);
+                expBubble.remove();
+                for (int i = 0; i < nearbyEntities.size(); i++) {
+                    Entity entity = nearbyEntities.get(i);
+                    if (entity != player) {
+                        //entity.setFallDistance(50.0f);
+                        world.playSound(player.getLocation(), Sound.ENDERMAN_SCREAM, 3F, 1F);
+                        Vector distanceToPlayer = (entity.getLocation().toVector().add(player.getLocation().toVector().multiply(-1)));
+                        //Creates a vector using the enemy's location subtracting the player's location to get the displacement from yourself to the enemy.
+                        Vector normalizedDistance = (distanceToPlayer.normalize());
+                        //Ensures the magnitude of the vector will be 1.
+                        entity.setVelocity(new Vector(normalizedDistance.getX(), 1, normalizedDistance.getZ()));
+                        //Sets the enemy's velocity to send it (away) up and at an angle relative to the player.
+                    }
+                }
+
             }
 
             /**
@@ -443,23 +485,19 @@ public final class Main extends JavaPlugin implements Listener {
         if (heldItem.getType() == Material.SAPLING && event.getAction().equals(Action.RIGHT_CLICK_BLOCK) && ((rightClickBlock.getType() == Material.GLASS)
                 || (rightClickBlock.getType() == Material.STAINED_GLASS_PANE)
                 || (rightClickBlock.getType() == Material.STAINED_GLASS)
-                || (rightClickBlock.getType() == Material.THIN_GLASS)))
-        {
-            if (heldSaplingType == JUNGLE_SAPLING)
-            {
-                while (rightClickBlock.getType() == Material.GLASS)
-                {
+                || (rightClickBlock.getType() == Material.THIN_GLASS))) {
+            if (heldSaplingType == JUNGLE_SAPLING) {
+                while (rightClickBlock.getType() == Material.GLASS) {
                     rightClickBlock.setType(Material.STAINED_GLASS);
                 }
-                while (rightClickBlock.getType() == Material.THIN_GLASS)
-                {
+                while (rightClickBlock.getType() == Material.THIN_GLASS) {
                     rightClickBlock.setType(Material.STAINED_GLASS_PANE);
                 }
                 rightClickBlock.setData(ORANGE_STAINED_GLASS);
                 world.playSound(player.getLocation(), Sound.ENDERMAN_IDLE, 3F, 1F);
             }
         }
-        
+
         /**
          * ROC'S CAPE
          */
@@ -639,31 +677,54 @@ public final class Main extends JavaPlugin implements Listener {
             PlayerTeleportLocations.remove(moveBoy.getUniqueId());
         }
     }
-    
+
     //From https://github.com/MinecraftForge/MCPBukkit/blob/master/src/org/bukkit/craftbukkit/event/CraftEventFactory.java
-    public static EntityDamageEvent callEntityDamageEvent(Entity damager, Entity damagee, DamageCause cause, double damage) 
-    {
-    	  EntityDamageEvent event;
-    	  if (damager != null) {
-    	  event = new EntityDamageByEntityEvent(damager, damagee, cause, damage);
-    	  } else {
-    	  event = new EntityDamageEvent(damagee, cause, damage);
-    	  }
-    	  callEvent(event);
-    	  if (!event.isCancelled()) {
-    	  event.getEntity().setLastDamageCause(event);
-    	  }
-    	  return event;
+    public static EntityDamageEvent callEntityDamageEvent(Entity damager, Entity damagee, DamageCause cause, double damage) {
+        EntityDamageEvent event;
+        if (damager != null) {
+            event = new EntityDamageByEntityEvent(damager, damagee, cause, damage);
+        } else {
+            event = new EntityDamageEvent(damagee, cause, damage);
+        }
+        callEvent(event);
+        if (!event.isCancelled()) {
+            event.getEntity().setLastDamageCause(event);
+        }
+        return event;
     }
 
     //From https://github.com/MinecraftForge/MCPBukkit/blob/master/src/org/bukkit/craftbukkit/event/CraftEventFactory.java
-    public static <T extends Event> T callEvent(T event) 
-    { 
-    	Bukkit.getServer().getPluginManager().callEvent(event); 
-    	return event; 
-    } 
+    public static <T extends Event> T callEvent(T event) {
+        Bukkit.getServer().getPluginManager().callEvent(event);
+        return event;
+    }
 
-    	  
+    
+     private boolean hasIntersection(Vector3D p1, Vector3D p2, Vector3D min, Vector3D max) {
+        final double epsilon = 0.0001f;
+ 
+        Vector3D d = p2.subtract(p1).multiply(0.5);
+        Vector3D e = max.subtract(min).multiply(0.5);
+        Vector3D c = p1.add(d).subtract(min.add(max).multiply(0.5));
+        Vector3D ad = d.abs();
+ 
+        if (Math.abs(c.x) > e.x + ad.x)
+            return false;
+        if (Math.abs(c.y) > e.y + ad.y)
+            return false;
+        if (Math.abs(c.z) > e.z + ad.z)
+            return false;
+ 
+        if (Math.abs(d.y * c.z - d.z * c.y) > e.y * ad.z + e.z * ad.y + epsilon)
+            return false;
+        if (Math.abs(d.z * c.x - d.x * c.z) > e.z * ad.x + e.x * ad.z + epsilon)
+            return false;
+        if (Math.abs(d.x * c.y - d.y * c.x) > e.x * ad.y + e.y * ad.x + epsilon)
+            return false;
+ 
+        return true;
+    }
+    
     // Need to specify which world rather than getting current world. same applies to Gale seed portion
 
     /*
@@ -671,65 +732,64 @@ public final class Main extends JavaPlugin implements Listener {
      * // Look into loading the world on server start
      */
     /*
-    @EventHandler
-    public void onBed(PlayerBedEnterEvent be) {
-        final Player sleepBoy = be.getPlayer();
-        heck = Bukkit.getWorld("Subrosia");
-        //Location inception = new Location(heck, 0, 0, 0);
-        if (sleepBoy.isSleeping() && sleepBoy.getWorld() == heck)
-        {
-            //inception = be.getBed().getLocation();
-            be.getBed().breakNaturally();
-            sleepBoy.getInventory().addItem(new ItemStack(Material.IRON_SPADE, 1));
-            sleepBoy.sendMessage(ChatColor.DARK_RED + "Subrosian tradition dictates that one must not sleep, only dig for ore chunks. Get to work.");
-        }
-        try {
-            Thread.sleep(1000); // Wait one second after getting in bed and progress
-        } catch (InterruptedException ex) {
-            Logger.getLogger(Main.class.getName()).log(Level.SEVERE, null, ex);
-        }
-        if (heck == null) //heck returns null if the world is not loaded yet, so we need to find a way to load it on server start.
-        {
-            sleepBoy.sendMessage(ChatColor.DARK_RED + "You can hear a rumbling sound from far away, as though a drill has pierced the heavens.");
-            WorldCreator subrosia = new WorldCreator("Subrosia");
-            subrosia.type(WorldType.AMPLIFIED);
-            subrosia.environment(World.Environment.NORMAL);
-            subrosia.generateStructures(true);
+     @EventHandler
+     public void onBed(PlayerBedEnterEvent be) {
+     final Player sleepBoy = be.getPlayer();
+     heck = Bukkit.getWorld("Subrosia");
+     //Location inception = new Location(heck, 0, 0, 0);
+     if (sleepBoy.isSleeping() && sleepBoy.getWorld() == heck)
+     {
+     //inception = be.getBed().getLocation();
+     be.getBed().breakNaturally();
+     sleepBoy.getInventory().addItem(new ItemStack(Material.IRON_SPADE, 1));
+     sleepBoy.sendMessage(ChatColor.DARK_RED + "Subrosian tradition dictates that one must not sleep, only dig for ore chunks. Get to work.");
+     }
+     try {
+     Thread.sleep(1000); // Wait one second after getting in bed and progress
+     } catch (InterruptedException ex) {
+     Logger.getLogger(Main.class.getName()).log(Level.SEVERE, null, ex);
+     }
+     if (heck == null) //heck returns null if the world is not loaded yet, so we need to find a way to load it on server start.
+     {
+     sleepBoy.sendMessage(ChatColor.DARK_RED + "You can hear a rumbling sound from far away, as though a drill has pierced the heavens.");
+     WorldCreator subrosia = new WorldCreator("Subrosia");
+     subrosia.type(WorldType.AMPLIFIED);
+     subrosia.environment(World.Environment.NORMAL);
+     subrosia.generateStructures(true);
 
-            heck = subrosia.createWorld(); //Create amped world with the name subrosia. This only needs to happen once in our case.
-            heck.setDifficulty(Difficulty.PEACEFUL);
-            heck.setSpawnLocation(30, 200, 50);
-            sleepBoy.sendMessage(ChatColor.DARK_RED + "The rumbling has stopped.");
-        } else {
-            // teleport the player to subrosia
-            sleepBoy.setGameMode(GameMode.CREATIVE);
-            sleepBoy.teleport(new Location(Bukkit.getWorld("Subrosia"), 30, 200, 50));
-            Bukkit.broadcastMessage(ChatColor.DARK_RED + "Welcome to Subrosia!");
-        }
+     heck = subrosia.createWorld(); //Create amped world with the name subrosia. This only needs to happen once in our case.
+     heck.setDifficulty(Difficulty.PEACEFUL);
+     heck.setSpawnLocation(30, 200, 50);
+     sleepBoy.sendMessage(ChatColor.DARK_RED + "The rumbling has stopped.");
+     } else {
+     // teleport the player to subrosia
+     sleepBoy.setGameMode(GameMode.CREATIVE);
+     sleepBoy.teleport(new Location(Bukkit.getWorld("Subrosia"), 30, 200, 50));
+     Bukkit.broadcastMessage(ChatColor.DARK_RED + "Welcome to Subrosia!");
+     }
 
-        Bukkit.getScheduler().runTaskLaterAsynchronously(this, new Runnable() {
-            public World world = Bukkit.getWorld("world");
-            public World heck = Bukkit.getWorld("Subrosia");
+     Bukkit.getScheduler().runTaskLaterAsynchronously(this, new Runnable() {
+     public World world = Bukkit.getWorld("world");
+     public World heck = Bukkit.getWorld("Subrosia");
 
-            @Override
-            public void run() {
-                if (sleepBoy.getWorld() == heck && world.getTime() <= 12000) {
-                    try
-                    {
-                        sleepBoy.teleport(sleepBoy.getBedSpawnLocation());
-                    }
-                    finally
-                    {
-                        if (sleepBoy.getBedSpawnLocation() == null)
-                        {
-                           sleepBoy.teleport(world.getSpawnLocation());
-                        }
-                    }
-                    sleepBoy.setGameMode(GameMode.SURVIVAL);
-                    sleepBoy.sendMessage(ChatColor.WHITE + "W A K E B O Y S");
-                }
-            }
-        }, 600);
-    }*/
-
+     @Override
+     public void run() {
+     if (sleepBoy.getWorld() == heck && world.getTime() <= 12000) {
+     try
+     {
+     sleepBoy.teleport(sleepBoy.getBedSpawnLocation());
+     }
+     finally
+     {
+     if (sleepBoy.getBedSpawnLocation() == null)
+     {
+     sleepBoy.teleport(world.getSpawnLocation())()); 
+     } 
+     } 
+     sleepBoy.setGameMode(GameMode.SURVIVAL); 
+     sleepBoy.sendMessage(ChatColor.WHITE + "W A K E B O Y S"); 
+     } 
+     } 
+     }, 600); 
+     }*/
 }
