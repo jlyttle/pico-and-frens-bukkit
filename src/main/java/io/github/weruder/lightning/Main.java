@@ -289,7 +289,9 @@ public final class Main extends JavaPlugin implements Listener {
                     Location playerLocation = player.getLocation();
                     Location targetLocation = target.getLocation();
                     player.teleport(targetLocation);
+                    world.playSound(targetLocation, Sound.ENDERMAN_DEATH, 3F, 1F);
                     target.teleport(playerLocation);
+                    world.playSound(playerLocation, Sound.ENDERMAN_DEATH, 3F, 1F);
                 }
             }
           }
