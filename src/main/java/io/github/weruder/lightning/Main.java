@@ -9,6 +9,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Random;
+import java.util.Set;
 import java.util.UUID;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -88,7 +89,7 @@ public final class Main extends JavaPlugin implements Listener {
     public Map<UUID, Block> CaneBlocks = new HashMap<>();
     public Map<UUID, Location> PlayerTeleportLocations = new HashMap<>();
     public Map<UUID, Boolean> UnthankfulList = new HashMap<>();
-
+    public final Object[] playerList = Bukkit.getOnlinePlayers().toArray();
     public World heck;
 
     @Override
@@ -106,7 +107,6 @@ public final class Main extends JavaPlugin implements Listener {
                 .addIngredient(2, Material.RED_ROSE)
                 .addIngredient(1, Material.WATER_BUCKET);
         Bukkit.addRecipe(recipe);
-        final Player[] playerList = Bukkit.getOnlinePlayers();
         Bukkit.getScheduler().runTaskAsynchronously(this, new Runnable() {
             @Override
             public void run() {
@@ -117,7 +117,7 @@ public final class Main extends JavaPlugin implements Listener {
                     //for each of the online players        
                     for (int i = 0; i < playerList.length; i++) {
                         //if Player i is wearing a gold helmet
-                        if (playerList[i].getEquipment().getHelmet() != null && playerList[i].getEquipment().getHelmet().getType() == Material.GOLD_HELMET) {
+                        if (((Player)playerList[i]).getEquipment().getHelmet() != null && ((Player)playerList[i]).getEquipment().getHelmet().getType() == Material.GOLD_HELMET) {
                             //Bukkit.broadcastMessage("for loop; " + (playerList[i].getEquipment().getHelmet().getDurability()));
                             //playerList[i].getEquipment().getHelmet().setDurability((short) (playerList[i].getEquipment().getHelmet().getDurability() + (short) 1));
                         }
@@ -182,11 +182,11 @@ public final class Main extends JavaPlugin implements Listener {
         final Player player = event.getPlayer();
         final World world = player.getWorld();
         ItemStack heldItem = player.getItemInHand();
-        Block targetBlock = player.getTargetBlock(null, 200);
+        Block targetBlock = player.getTargetBlock((Set<Material>)null, 200);
 
         if (heldItem.getType() == Material.INK_SACK) {
             //Cut down on repeated calls to getData().getData(), just store the number for later.
-            byte heldDyeColor = heldItem.getData().getData();
+            final byte heldDyeColor = heldItem.getData().getData();
 
             /**
              * MAGNET GLOVES
@@ -200,7 +200,7 @@ public final class Main extends JavaPlugin implements Listener {
                         player.setItemInHand(new ItemStack(Material.INK_SACK, 1, RED_DYE));
                     }
                 } //Otherwise, we're doing a right click, and want to be pulled or pushed
-                else if (targetBlock.getType() == Material.IRON_BLOCK) {
+                else if (targetBlock.getType() == Material.IRON_BLOCK) { //we prioritize iron block over right clicking players
                     Location playerLoc = player.getLocation();
                     final Vector distanceToBlock = playerLoc.getDirection();
                     //If we're using the South glove, reverse the polarity
@@ -216,7 +216,7 @@ public final class Main extends JavaPlugin implements Listener {
                     //their current velocity when they use the gloves.
                     player.setVelocity(distanceToBlock);
                     //This plays our Magnet sound effect. Remove this line to mute the sound.
-                    world.playSound(playerLoc, Sound.ENDERMAN_HIT, 3F, 1F);
+                    world.playSound(playerLoc, Sound.ENTITY_ENDERMEN_HURT, 3F, 1F);
 
                     //In 10 ticks, run this code
                     Bukkit.getServer().getScheduler().scheduleSyncDelayedTask(this, new Runnable() {
@@ -234,6 +234,93 @@ public final class Main extends JavaPlugin implements Listener {
                         }
                     }, 10);
                 }
+                //else if (event.getAction().equals(Action.RIGHT_CLICK_AIR)) {
+           /**
+            * MAGNET GLOVE STEALING
+            * Steal a player's item when right clicking them with the magnet glove
+            */
+                //wait 1 second in case the player didn't mean to steal an item
+                  //  Bukkit.broadcastMessage("before sleep"); //temp
+                //try {
+                  //  Thread.sleep(1000);
+                //} catch (InterruptedException ex) {
+                  //  Logger.getLogger(Main.class.getName()).log(Level.SEVERE, null, ex);
+                //}
+               // Bukkit.broadcastMessage("Check 1"); //temp
+                //final int ATTACK_REACH = 100; // meters you can reach the target from
+                //Location playerPosition = player.getEyeLocation();
+                //Vector3D playerDirection = new Vector3D(playerPosition.getDirection());
+ 
+                //Vector3D playerStart = new Vector3D(playerPosition);
+                //Vector3D playerEnd = playerStart.add(playerDirection.multiply(ATTACK_REACH));
+                //Player steal = null;
+                 // Get nearby players
+                //for (Player stealTarget : player.getWorld().getPlayers()) {
+                    // Bounding box of the given target player
+                  //  Vector3D stealTargetPos = new Vector3D(stealTarget.getLocation());
+                    //Vector3D min = stealTargetPos.add(-0.5, 0, -0.5);
+                    //Vector3D max = stealTargetPos.add(0.5, 1.67, 0.5);
+                    
+                     //if (stealTarget != player && hasIntersection(playerStart, playerEnd, min, max)) {
+                       // if (steal == null || 
+                         //       steal.getLocation().distanceSquared(playerPosition) > 
+                           //     stealTarget.getLocation().distanceSquared(playerPosition)) {
+ 
+                            //steal = stealTarget;
+                            //Bukkit.broadcastMessage("Check 2");
+                          // get the current item in the target player's hand, starts a while loop that checks
+                          // to see if player and target have intersection, player is still right clicking, etc.
+                          // If they don't have intersection during one of the checks, the magnet glove is removed
+                          // from the player's inventory. If the player is continuously right clicking and in
+                          // intersection with target for 5 seconds, the item is given to the player. Bonus:
+                          // if player's inventory is full, the itemstack is flung aside from the target.
+                          // Second bonus: items on the ground could move toward or away from the player using a magnet glove.
+      
+                            //ItemStack targetItemInHand = stealTarget.getItemInHand();
+                            // check first to see if the target has anything in their hand, and exit if they don't
+                            //if (targetItemInHand.getType() == Material.AIR) {
+                              //  player.sendMessage(stealTarget.getDisplayName() + " is a   P O O R B O Y");
+                                //return;
+                            //}
+                              //     player.sendMessage("Attempting to steal " + stealTarget.getDisplayName() + "'s " + targetItemInHand + "..." );
+                                //   int counter = 0;
+                                  // while ((heldDyeColor == RED_DYE || heldDyeColor == BLUE_DYE) && event.getAction().equals(Action.RIGHT_CLICK_AIR) && hasIntersection(playerStart, playerEnd, min, max)) {
+                                    //   counter++;
+                               // try {
+                                 //   Thread.sleep(1000);
+                                //} catch (InterruptedException ex) {
+                                  //  Logger.getLogger(Main.class.getName()).log(Level.SEVERE, null, ex);
+                               // }
+                               //        player.sendMessage(Integer.toString(counter));
+                                 //  }
+                                   //        if (counter == 5) // After a certain time of counting up
+                                     //      {
+                                       //        player.getInventory().addItem(targetItemInHand);
+                                         //      stealTarget.getInventory().remove(targetItemInHand);
+                                           //    player.sendMessage("You got it bruh.");
+                                             //  stealTarget.sendMessage("Got hacked, lol.");
+                                               //return;
+                                           //}
+                                            //player.sendMessage(stealTarget.getDisplayName() + " got away! And your glove broke.");
+                                       // remove one rose red from the player's inventory, or if they somehow turned it into lapis it will take one of those.
+                                            //if (player.getInventory().contains(Material.INK_SACK, RED_DYE)) {
+                                              //  player.getInventory().removeItem(new ItemStack(Material.INK_SACK, 1, RED_DYE));
+                                            //}
+                                            //else if (player.getInventory().contains(Material.INK_SACK, BLUE_DYE)) {
+                                              //  player.getInventory().removeItem(new ItemStack(Material.INK_SACK, 1, BLUE_DYE));
+                                            //}
+                                            
+                                   //play the magnet glove sound on loop while right clicking
+                               //Bukkit.getServer().getScheduler().scheduleSyncDelayedTask(this, new Runnable()  {
+                               //@Override
+                               //public void run () {
+                                 //  world.playSound(player.getLocation(), Sound.ENDERMAN_HIT, 3F, 1F);
+                                //}
+                            //}, 10);
+                //}
+            //}
+           //}
+             //                   }
             }
 
             /**
@@ -249,7 +336,7 @@ public final class Main extends JavaPlugin implements Listener {
                 //following line, it will swap it with most blocks outside of liquids, air, and bedrock
                 //if (!targetBlock.isEmpty() && !targetBlock.isLiquid() && blockMaterial != Material.BEDROCK)
                 if (blockMaterial == Material.SMOOTH_BRICK && blockType == CHISELED_STONE) {
-                    world.playSound(playerLoc, Sound.ENDERMAN_DEATH, 3F, 1F);
+                    world.playSound(playerLoc, Sound.ENTITY_ENDERMEN_DEATH, 3F, 1F);
                     targetBlock.setType(Material.AIR);
                     Location newPlayerLoc = new Location(world, blockLoc.getX(), blockLoc.getY() + 1, blockLoc.getZ(), playerLoc.getYaw() + 180f, playerLoc.getPitch());
                     player.teleport(newPlayerLoc);
@@ -262,8 +349,9 @@ public final class Main extends JavaPlugin implements Listener {
              * HOOKSWITCH PT2
              * Switch players around with the hookswitch
              */
-            final int ATTACK_REACH = 100; // meters
+            
             if (heldDyeColor == CYAN_DYE && event.getAction().equals(Action.RIGHT_CLICK_AIR)){
+                final int ATTACK_REACH = 100;
                 Location observerPos = player.getEyeLocation();
                 Vector3D observerDir = new Vector3D(observerPos.getDirection());
  
@@ -284,14 +372,14 @@ public final class Main extends JavaPlugin implements Listener {
  
                             warp = target;
                             
-                             // Hit the closest player
+               // Get the location of both entities and teleport each other. Play the same sfx as part 1.
                 if (warp != null) {
                     Location playerLocation = player.getLocation();
                     Location targetLocation = target.getLocation();
                     player.teleport(targetLocation);
-                    world.playSound(targetLocation, Sound.ENDERMAN_DEATH, 3F, 1F);
+                    world.playSound(targetLocation, Sound.ENTITY_ENDERMEN_DEATH, 3F, 1F);
                     target.teleport(playerLocation);
-                    world.playSound(playerLocation, Sound.ENDERMAN_DEATH, 3F, 1F);
+                    world.playSound(playerLocation, Sound.ENTITY_ENDERMEN_DEATH, 3F, 1F);
                 }
             }
           }
@@ -308,7 +396,7 @@ public final class Main extends JavaPlugin implements Listener {
                     Entity entity = nearbyEntities.get(i);
                     if (entity != player) {
                         //entity.setFallDistance(50.0f);
-                        world.playSound(player.getLocation(), Sound.ENDERMAN_SCREAM, 3F, 1F);
+                        world.playSound(player.getLocation(), Sound.ENTITY_ENDERMEN_SCREAM, 3F, 1F);
                         Vector distanceToPlayer = (entity.getLocation().toVector().add(player.getLocation().toVector().multiply(-1)));
                         //Creates a vector using the enemy's location subtracting the player's location to get the displacement from yourself to the enemy.
                         Vector normalizedDistance = (distanceToPlayer.normalize());
@@ -325,7 +413,7 @@ public final class Main extends JavaPlugin implements Listener {
              */
             if (heldDyeColor == ORANGE_DYE && (event.getAction().equals(Action.RIGHT_CLICK_AIR) || event.getAction().equals(Action.RIGHT_CLICK_BLOCK))) {
                 Location playerLoc = player.getLocation();
-                world.playSound(playerLoc, Sound.ENDERMAN_IDLE, 3F, 1F);
+                world.playSound(playerLoc, Sound.ENTITY_ENDERMEN_AMBIENT, 3F, 1F);
                 boolean spawnBlock = true;
                 if (CaneBlocks.containsKey(player.getUniqueId())) {
                     Block oldBlock = CaneBlocks.get(player.getUniqueId());
@@ -337,7 +425,7 @@ public final class Main extends JavaPlugin implements Listener {
                 }
                 if (spawnBlock) {
                     BlockFace face = null;
-                    List<Block> blocks = player.getLastTwoTargetBlocks(null, 10);
+                    List<Block> blocks = player.getLastTwoTargetBlocks((Set<Material>)null, 10);
                     if (blocks.size() > 1) {
                         face = blocks.get(1).getFace(blocks.get(0));
                     }
@@ -357,7 +445,7 @@ public final class Main extends JavaPlugin implements Listener {
              * GALE SEED
              */
             if (heldSaplingType == OAK_SAPLING) {
-                world.playSound(player.getLocation(), Sound.ENDERMAN_TELEPORT, 3F, 1F);
+                world.playSound(player.getLocation(), Sound.ENTITY_ENDERMEN_TELEPORT, 3F, 1F);
 
                 player.getInventory().removeItem(new ItemStack(Material.SAPLING, 1, OAK_SAPLING));
 
@@ -367,7 +455,7 @@ public final class Main extends JavaPlugin implements Listener {
                     PlayerTeleportLocations.put(player.getUniqueId(), player.getLocation());
                     player.teleport(new Location(world, 655.5, 107.0, 497.5));
                 }
-                world.playSound(player.getLocation(), Sound.ENDERMAN_TELEPORT, 3F, 1F);
+                world.playSound(player.getLocation(), Sound.ENTITY_ENDERMEN_TELEPORT, 3F, 1F);
             }
 
             /**
@@ -395,7 +483,7 @@ public final class Main extends JavaPlugin implements Listener {
             if (heldSaplingType == SPRUCE_SAPLING) {
                 player.getInventory().removeItem(new ItemStack(Material.SAPLING, 1, SPRUCE_SAPLING));
                 player.getInventory().addItem(new ItemStack(Material.RED_ROSE, 64));
-                world.playSound(player.getLocation(), Sound.ENDERMAN_IDLE, 3F, 1F);
+                world.playSound(player.getLocation(), Sound.ENTITY_ENDERMEN_AMBIENT, 3F, 1F);
             }
 
             /**
@@ -410,11 +498,11 @@ public final class Main extends JavaPlugin implements Listener {
             /**
              * GASHA SEED
              */
-            if (heldSaplingType == DARK_OAK_SAPLING && Bukkit.getOnlinePlayers().length > 1) {
+            if (heldSaplingType == DARK_OAK_SAPLING && playerList.length > 1) {
                 player.getInventory().removeItem(new ItemStack(Material.SAPLING, 1, DARK_OAK_SAPLING));
-                Player P1 = Bukkit.getOnlinePlayers()[new Random().nextInt(Bukkit.getOnlinePlayers().length)];
-                while (player.getDisplayName().equals(P1.getDisplayName()) && Bukkit.getOnlinePlayers().length > 1) {
-                    P1 = Bukkit.getOnlinePlayers()[new Random().nextInt(Bukkit.getOnlinePlayers().length)];
+                Player P1 = (Player)playerList[new Random().nextInt(playerList.length)];
+                while (player.getDisplayName().equals(P1.getDisplayName()) && playerList.length > 1) {
+                    P1 = (Player)playerList[new Random().nextInt(playerList.length)];
                 }
 
                 int nuRando = new Random().nextInt(99);
@@ -496,7 +584,7 @@ public final class Main extends JavaPlugin implements Listener {
                     rightClickBlock.setType(Material.STAINED_GLASS_PANE);
                 }
                 rightClickBlock.setData(ORANGE_STAINED_GLASS);
-                world.playSound(player.getLocation(), Sound.ENDERMAN_IDLE, 3F, 1F);
+                world.playSound(player.getLocation(), Sound.ENTITY_ENDERMEN_AMBIENT, 3F, 1F);
             }
         }
 
@@ -533,6 +621,7 @@ public final class Main extends JavaPlugin implements Listener {
          }
          }*/
     }
+    
 
     @EventHandler
     public void playerHitPlayerEvent(EntityDamageByEntityEvent event) {
@@ -549,7 +638,7 @@ public final class Main extends JavaPlugin implements Listener {
                  */
                 if (heldSaplingType == OAK_SAPLING) {
                     player.getInventory().removeItem(new ItemStack(Material.SAPLING, 1, OAK_SAPLING));
-                    victim.getWorld().playSound(victim.getLocation(), Sound.ENDERMAN_TELEPORT, 3F, 1F);
+                    victim.getWorld().playSound(victim.getLocation(), Sound.ENTITY_ENDERMEN_TELEPORT, 3F, 1F);
                     victim.teleport(victim.getLocation().add(rand.nextInt(10) * (Math.random() < 0.5 ? -1 : 1), rand.nextInt(10), rand.nextInt(10) * (Math.random() < 0.5 ? -1 : 1)));
                 }
 
@@ -592,7 +681,7 @@ public final class Main extends JavaPlugin implements Listener {
                             ((LivingEntity) victim).addPotionEffect(new PotionEffect(PotionEffectType.BLINDNESS, 20 * 10, 0));
                         }
                     }
-                    victim.getWorld().playSound(victim.getLocation(), Sound.ENDERMAN_IDLE, 3F, 1F);
+                    victim.getWorld().playSound(victim.getLocation(), Sound.ENTITY_ENDERMEN_AMBIENT, 3F, 1F);
                 }
 
                 /**

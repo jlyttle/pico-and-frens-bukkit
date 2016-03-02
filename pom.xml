@@ -2,7 +2,7 @@
   <modelVersion>4.0.0</modelVersion>
   <groupId>io.github.weruder</groupId>
   <artifactId>QMod</artifactId>
-  <version>0.0.1-SNAPSHOT</version>
+  <version>1.9-SNAPSHOT</version>
      <build>
       <plugins>
           <plugin>
@@ -22,13 +22,15 @@
            <url>http://repo.bukkit.org/content/groups/public/</url>
        </repository>
    </repositories>
-      <dependencies>
-       <dependency>
-           <groupId>org.bukkit</groupId>
-           <artifactId>bukkit</artifactId>
-           <version>1.7.9-R0.2</version>
-           <type>jar</type>
-           <scope>provided</scope>
-       </dependency>
-   </dependencies>
+    <name>QMod</name>
+    <description>Modpack for the Pico and Frens server</description>
+    <dependencies>
+        <dependency>
+            <groupId>org.bukkit</groupId>
+            <artifactId>bukkit</artifactId>
+            <version>1.9</version>
+            <scope>provided</scope>
+            <type>jar</type>
+        </dependency>
+    </dependencies>
 </project>
